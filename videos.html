@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="page-view-size" content="1280*720">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+	<meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+	<title>视频播放</title>
+	<style>
+		body {
+	font-family: Arial, "黑体", Helvetica, sans-serif;
+	background-color: transparent;
+	width: 1280px;
+	height: 720px;
+	overflow: hidden;
+	margin: 0;
+}
+	</style>
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+	function getParameterByName(name) {
+		var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+		return match && (match[1].replace(/\+/g, ' '));
+	}
+
+	function getSTBModel() {
+		var stbModel = '';
+		if (typeof (Authentication) == 'object') {
+			//此方法经测试目前可以获取到华为，中兴，创维三款机顶盒型号
+			stbModel = Authentication.CTCGetConfig('STBType');
+			if (!stbModel) {
+				stbModel = Authentication.CUGetConfig("STBType");
+			}
+			//烽火的机顶盒
+			if (!stbModel) {
+				stbModel = Authentication.CTCGetConfig("device.stbmodel");
+			}
+		}
+		//中兴老的盒子获取机顶盒型号的方法
+		if (!stbModel && typeof (ztebw) == 'object') {
+			stbModel = ztebw.ioctlRead("infoZTEHWType");
+			if (!stbModel) {
+				stbModel = ztebw.ioctlRead("infoHWProduct");
+			}
+		}
+		return stbModel;
+	}
+
+	var playUrl = "http://202.99.114.93/88888891/16/20181106/270312651/270312651.ts";
+	playUrl = playUrl.replace('http', 'rtsp'); //换一下协议，有部分盒子http有问题
+
+	var backUrl = window.location.search.split("&returnUrl=")[1];
+
+
+	var mp = new MediaPlayer();
+	var instanceId = mp.getNativePlayerInstanceID();
+
+	function fullscreenPlay(url) {
+		var playListFlag = 0; //Media Player 的播放模式。 0：单媒体的播放模式 (默认值)，1: 播放列表的播放模式
+		var videoDisplayMode = 1; //MediaPlayer 对象对应的视频窗口的显示模式. 1: 全屏显示2: 按宽度显示，3: 按高度显示
+		var height = 720;
+		var width = 1280;
+		var left = 0;
+		var top = 0;
+		var muteFlag = 0; //0: 设置为有声 (默认值) 1: 设置为静音
+		var useNativeUIFlag = 0; // 0-不使用player的本地UI显示功能,1-使用player的本地UI显示功能(默认)
+		var subtitleFlag = 0; // 0-不显示字幕(默认),1-显示字幕
+		var videoAlpha = 0; // 0-不透明(默认),100-完全透明
+		var cycleFlag = 1; // 0-设置为循环播放（默认值）, 1-设置为单次播放
+		var randomFlag = 0;
+		var autoDelFlag = 0;
+
+		mp.initMediaPlayer(instanceId, playListFlag, videoDisplayMode, height, width, left, top, muteFlag,
+			useNativeUIFlag, subtitleFlag, videoAlpha, cycleFlag, randomFlag, autoDelFlag);
+		mp.setAllowTrickmodeFlag(0); //设置是否允许trick操作。 0:允许 1：不允许
+		mp.setSingleMedia(getMediaStr(url));
+		mp.setVideoDisplayMode(1);
+		mp.refreshVideoDisplay();
+		mp.playFromStart();
+
+		function getMediaStr(url) {
+			var json = '';
+			json += '[{mediaUrl:"' + url + '",'; //字符串，媒体的url
+			json += 'mediaCode: "jsoncode1",'; //字符串，媒体的唯一标识
+			json += 'mediaType:2,'; //媒体的类型, 2: TYPE_VOD
+			json += 'audioType:1,'; //音频编码类型, 1: MPEG-1/2 layer 2 (MP2)
+			json += 'videoType:1,'; //视频编码类型, 1: MPEG-2
+			json += 'streamType:1,'; //流类型, 1: PS
+			json += 'drmType:1,'; //DRM类型, 1:DRM_TYPE_CLEAR_TEXT
+			json += 'fingerPrint:0,'; //是否支持水印保护, 0: 开启fingerPrint
+			json += 'copyProtection:1,'; //防拷贝类型, 1:PROTECTION_MACROVISION
+			json += 'allowTrickmode:1,'; // 表示该媒体是否允许任何trick mode操作（包括快进/快退/暂停）, 1: 允许Trickmode (缺省值)
+			json += 'startTime:0,'; //表示媒体的起始时间
+			json += 'endTime:20000.3,'; //表示媒体的结束时间
+			json += 'entryID:"jsonentry1"}]'; //媒体加入Playlist 时，在媒体列表中的唯一标识。
+			return json;
+		}
+	}
+
+	function stopVideo() {
+		if (mp) {
+			mp.stop();
+			if (instanceId >= 0) {
+				mp.releaseMediaPlayer(instanceId);
+				instanceId = -1;
+			}
+		}
+	}
+
+	var volFlag = null;
+
+	function volumeUp() {
+		var volume = mp.getVolume();
+		if (volume >= 95) {
+			volume = 100;
+		} else {
+			volume += 5;
+		}
+		mp.setVolume(volume);
+	}
+
+	function volumeDown() {
+		var volume = mp.getVolume();
+		if (volume <= 5) {
+			volume = 0;
+		} else {
+			volume -= 5;
+		}
+		mp.setVolume(volume);
+	}
+
+	function setMute() {
+		mp.setMuteUIFlag(1);
+		var tmp_flag = mp.getMuteFlag();
+		var mute_flag = (tmp_flag > 0) ? 0 : 1;
+		mp.setMuteFlag(mute_flag);
+	}
+
+	/*
+	 * 退出
+	 */
+	function _quit() {
+		stopVideo();
+		window.location.href = backUrl;
+	}
+	window.document.onkeydown = function (keyEvent) {
+		keyEvent = keyEvent ? keyEvent : window.event;
+		//		keyEvent.which = keyEvent.which ? keyEvent.which : keyEvent.keyCode;
+		//		keycontrol(keyEvent.which);
+		keycontrol(keyEvent.keyCode);
+	}
+	function keycontrol(obj) {
+		switch (obj) {
+			case 768:
+
+			case 259:
+
+				volumeUp();
+
+				break;
+			case 260:
+
+				volumeDown();
+
+				break;
+			case 261:
+
+				setMute();
+
+				break;
+			case 37:
+
+				break;
+			case 39:
+
+				break;
+			case 38:
+
+				break;
+			case 40:
+
+				break
+			case 8:
+
+				_quit();
+
+				break;
+
+			case 13:
+
+
+
+				break;
+			default:
+				break;
+		}
+
+	};
+	window.onload = function () {
+		fullscreenPlay(playUrl);
+	}
+</script>
+
+</html>

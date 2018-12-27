@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>挽留页</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="page-view-size" content="1280*720">
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="js/cycle.js"></script>
+    <script type="text/javascript" src="js/href.js"></script>
+    <script type="text/javascript" src="js/ajax.js"></script>
+    <style>
+        .top{
+            width: 774px;
+            height: 303px;
+            position: absolute;
+            top: 100px;
+            left: 238px;
+        }
+        .left{
+            width:214px;height:45px;
+            position:absolute;
+            top:511px;
+            left:300px;
+        }
+        .right{
+            width:214px;height:45px;
+            position:absolute;
+            top:500px;
+            left:800px;
+        }
+        .lefton{
+            width: 321px;
+            height: 67.5px;
+
+            top: 500px;
+            left: 150px;
+        }
+        .righton{
+            width:321px;
+            height:67.5px;
+            top:500px;
+            left:800px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wp detailhtml">
+        <img src="/epg/images/132.png" class="top"  id="top"   style="" />
+        <img src="/epg/images/jxgk.png" class="left lefton" id="left" style="" />
+        <img src="/epg/images/crlk.png" class="right" id="right" style="" />
+    </div>
+</body>
+<script>
+    var mor = "left";
+    // sessionStorage.setItem('flag', false);
+    var jx = rep(getUrlParam("jx"), false);
+
+    //获取url中的参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg); //匹配目标参数
+        if (r != null) return unescape(r[2]);
+        return null; //返回参数值
+    }
+
+    function jumpPage() {
+        if (event.keyCode == 37 || event.keyCode == "KEY_LEFT") //左
+            fun_left();
+        if (event.keyCode == 39 || event.keyCode == "KEY_RIGHT") //右
+            fun_right();
+        if (event.keyCode == 13 || event.keyCode == "KEY_ENTER") //enter
+            fun_enter();
+          
+    }
+
+    function fun_left() {
+        if (mor == "right") {
+            removeClass("righton", "right");
+            mor = "left";
+            document.getElementById("left").className += " lefton";
+        }
+    }
+
+    function fun_right() {
+        if (mor == "left") {
+            removeClass("lefton", "left");
+            mor = "right";
+            document.getElementById("right").className += " righton";
+        }
+    }
+
+    function fun_enter() {
+        if (mor == "left") {
+            window.location.href = jx;
+        } else {
+            window.location.href = rep(getUrlParam("returnInfo"), false);
+            sessionStorage.removeItem('flag');
+        }
+    }
+    document.onkeydown = jumpPage;
+
+    function removeClass(removeClassName, selectedId) {
+        var classNames = document.getElementById(selectedId).className;
+        classNames = classNames.replace(/(^\s*)|(\s*$)/g, "");
+        var classNameArr = classNames.split(" ");
+        var okClassNames = "";
+        for (var ii = 0; ii < classNameArr.length; ii++) {
+            if (!(classNameArr[ii] == removeClassName)) {
+                okClassNames += " " + classNameArr[ii];
+            }
+        }
+        document.getElementById(selectedId).className = okClassNames;
+    }
+</script>
+
+</html>

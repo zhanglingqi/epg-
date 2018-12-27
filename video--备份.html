@@ -1,0 +1,489 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="" src="js/ajax.js"></script>
+    <script type="" src="js/href.js"></script>
+    <title>高清视频播放界面</title>
+
+    <script type="text/javascript">
+        var backurl=window.location.search.split("&backUrlvideo=")[1];//返回url
+        var stbType = getSTBModel();//盒子型号
+        var playUrl = "";
+        //获取视频相关信息
+        Ajax.get({
+            url: 'http://202.99.114.74:57301/api.php',
+            data: {
+                 mod:"h5",
+                 ac:"mp4",
+                 cid:getParameterByName("cid"),
+                 vid:getParameterByName("vid"),
+                 uid:getParameterByName("uid")
+            },
+            success: function(data) {
+                data=JSON.parse(data)
+                if(data.code==0){
+                    playUrl=data.datas.cdn;
+                }
+            },
+            async: false
+        })
+        // Get stbType; 获取机顶盒型号
+        if (window.Authentication && Authentication.CTCGetConfig) {
+            stbType = Authentication.CTCGetConfig('STBType');
+        }
+        //根据参数名获取URL的参数值
+        function getParameterByName(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]); return null; //返回参数值
+        }
+        var pro = null;
+        var mp = new MediaPlayer();
+        var speed = 1;
+        var playListFlag = 0;
+        var videoDisplayMode = 1; // 0-自定义尺寸,1-全屏(默认),255-不显示在背后播放
+        var videoWidth = 1280;
+        var videoHeight = 720;
+        var videoLeft = 0; // 自定义尺寸必须指定
+        var videoTop = 0; // 自定义尺寸必须指定
+        var muteFlag = 0; // 0-有声(默认),1-静音
+        var useNativeUIFlag = 0; // 0-不使用player的本地UI显示功能,1-使用player的本地UI显示功能(默认)
+        var subtitleFlag = 0; // 0-不显示字幕(默认),1-显示字幕
+        var videoAlpha = 0; //0-不透明(默认),100-完全透明
+        var cycleFlag = 1;
+        var randomFlag = 0;
+        var autoDelFlag = 0;
+
+        var json = '';
+        json += '[{mediaUrl:"' + playUrl + '",'; //字符串，媒体的url
+        json += 'mediaCode: "jsoncode1",'; //字符串，媒体的唯一标识
+        json += 'mediaType:2,'; //媒体的类型, 2: TYPE_VOD
+        json += 'audioType:1,'; //音频编码类型, 1: MPEG-1/2 layer 2 (MP2)
+        json += 'videoType:1,'; //视频编码类型, 1: MPEG-2
+        json += 'streamType:1,'; //流类型, 1: PS
+        json += 'drmType:1,'; //DRM类型, 1:DRM_TYPE_CLEAR_TEXT
+        json += 'fingerPrint:0,'; //是否支持水印保护, 0: 开启fingerPrint
+        json += 'copyProtection:1,'; //防拷贝类型, 1:PROTECTION_MACROVISION
+        json += 'allowTrickmode:1,'; // 表示该媒体是否允许任何trick mode操作（包括快进/快退/暂停）, 1: 允许Trickmode (缺省值)
+        json += 'startTime:0,'; //表示媒体的起始时间
+        json += 'endTime:20000.3,'; //表示媒体的结束时间
+        json += 'entryID:"jsonentry1"}]'; //媒体加入Playlist 时，在媒体列表中的唯一标识。
+
+
+        var instanceId = mp.getNativePlayerInstanceID();
+        mp.bindNativePlayerInstance(instanceId);
+        mp.initMediaPlayer(instanceId, playListFlag, videoDisplayMode, videoHeight,
+            videoWidth, videoLeft, videoTop, muteFlag, useNativeUIFlag,
+            subtitleFlag, videoAlpha, cycleFlag, randomFlag, autoDelFlag);
+        mp.setAllowTrickmodeFlag(0); //设置是否允许trick操作。 0:允许 1：不允许
+        mp.setSingleMedia(json);
+        mp.setNativeUIFlag(1); // 0-...... Player...... UI ........, 1-....Player......UI........ (......)
+        mp.setMuteUIFlag(1);
+        mp.setProgressBarUIFlag(1);
+        mp.setAudioVolumeUIFlag(1);
+        mp.setAudioTrackUIFlag(0);
+        mp.setVideoDisplayMode(1);
+        mp.setVideoDisplayArea(0, 0, 1280, 720);
+        mp.refreshVideoDisplay();
+        mp.playFromStart();
+        window.setTimeout("isEnd();", 3000);
+        function isEnd() {
+            if (stbType !== "B760EV3") {
+                if (stbType !== "MC8637") {
+                    if (stbType !== "Amlogic-S805") {
+                        if (isSmallWindow === 'smallScreen') {
+                            //如果是主页小窗口播放,这里播放完后不做任何处理
+                        } else {
+                            var tmpcurrenttime = parseInt("" + mp.getCurrentPlayTime());
+                            var tmpduration = parseInt("" + mp.getMediaDuration());
+                            if ((tmpcurrenttime + 2) >= tmpduration) {
+                                window.location.go(-1);
+                            } else {
+                                window.setTimeout("isEnd();", 1000);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        window.document.onkeydown = function (keyEvent) {
+            keyEvent = keyEvent ? keyEvent : window.event;
+            keycontrol(keyEvent.keyCode);
+        }
+        var playState = 'play';
+        var index = 0;
+        //
+        // log({
+        //         mod:"test",
+        //         ac:"log",
+        //
+        //
+        // })
+        //获取盒子型号
+        function getSTBModel() {
+            var stbModel = '';
+            if (typeof (Authentication) == 'object') {
+                //此方法经测试目前可以获取到华为，中兴，创维三款机顶盒型号
+                stbModel = Authentication.CTCGetConfig('STBType');
+                if (!stbModel) {
+                    stbModel = Authentication.CUGetConfig("STBType");
+                }
+                //烽火的机顶盒
+                if (!stbModel) {
+                    stbModel = Authentication.CTCGetConfig("device.stbmodel");
+                }
+            }
+            //中兴老的盒子获取机顶盒型号的方法
+            if (!stbModel && typeof (ztebw) == 'object') {
+                stbModel = ztebw.ioctlRead("infoZTEHWType");
+                if (!stbModel) {
+                    stbModel = ztebw.ioctlRead("infoHWProduct");
+                }
+            }
+            return stbModel;
+        }
+        function keycontrol(obj) {
+            switch (obj) {
+                case 259:
+                    addVolume();
+                    break;
+                case 260:
+                    subVolume();
+                    break;
+                case 261:
+                    silentMode();
+                    break;
+                case 37:
+                    if (isSmallWindow !== 'smallScreen') {
+                        fastRewind();
+                    }
+                    break;
+                case 39:
+                    if (isSmallWindow !== 'smallScreen') {
+                        fastForward();
+                    }
+                    break;
+                case 38:
+                    if (index !== 0) {
+                        up();
+                    }
+                    break;
+                case 40:
+                    if (index !== 0) {
+                        down();
+                    }
+                    break
+                case 8:
+                    document.getElementById('tui').style.display = 'block';
+                    if (index == 3) {
+                        document.getElementById('tui').style.display = 'none';
+                        index = 0;
+                    } else {
+                        down();
+                    }
+                    break;
+                //		case 37: fastRewind();
+                //  		break;
+                //		case 39:
+                //			fastForward();
+                //			break;
+                case 13:
+                    var mun = 0;
+                    if (isSmallWindow !== 'smallScreen') {
+                        if (index == 3) {
+                            exitPlay();
+                        } else if (index == 2) {
+                            document.getElementById('tui').style.display = 'none';
+                            down();
+                            mun = 1;
+                            index = 0;
+                            return mun, index;
+                        }
+                        if (mun !== 1) {
+                            jindu();
+                            pauseOrResume();
+                            mun = 0;
+                        }
+                    }
+
+                    break;
+                // 		case 48:
+                // 			openDebug();
+                // 			break;
+                default:
+                    break;
+            }
+
+        }
+        function up() {
+            document.getElementById('img0').style.opacity = '0.4';
+            document.getElementById('img1').style.opacity = '1';
+            index = 2;
+        }
+        function down() {
+            document.getElementById('img0').style.opacity = '1';
+            document.getElementById('img1').style.opacity = '0.4';
+            index = 3;
+        }
+        //ok键
+        function pauseOrResume() {
+            if (playState == 'fastRewind' || playState == 'fastForward' || playState == 'pause') {
+                resume();
+            } else {
+                playOrPause();
+            }
+        }
+        //播放
+        function resume() {
+            document.getElementById('play').src = '/epg/images/pause.png';
+            speed = 1;
+            playState = 'play';
+            mp.resume();
+        }
+        //暂停
+        function pause() {
+            document.getElementById('play').src = '/epg/images/play.png'
+            speed = 1;
+            playState = 'pause';
+            mp.pause();
+        }
+        //暂停或者播放
+        function playOrPause() {
+            if (playState == 'play') {
+                pause();
+            } else {
+                resume();
+            }
+        }
+        var timego = 0;
+        //快进
+        function fastForward() {
+
+            // if (speed >= 32 || playState == 'fastRewind') {
+            // 	speed = 1;
+            // }
+            // speed = speed * 2;
+            // playState = 'fastForward';
+            // mp.fastForward(speed);
+            timego += 10;
+            mp.playByTime(1, timego);
+            jindu();
+        }
+        //快退
+        function fastRewind() {
+
+            // if (speed >= 32 || playState == 'fastForward') {
+            // 	speed = 1;
+            // }
+            // speed = speed * 2;
+            // playState = 'fastRewind';
+            // mp.fastRewind(-speed);
+            timego -= 10;
+            mp.playByTime(1, timego);
+            jindu();
+        }
+        // Exit; 退出
+        function exitPlay() {
+            mp.stop();
+            clearInterval(z);
+
+            window.location.href=backurl
+        }
+        // Up volume; 增大音量
+        function addVolume() {
+            var volume = mp.getVolume();
+            if (volume < 150) {
+                volume += 5;
+            }
+            mp.setVolume(volume);
+        }
+        // Down volume; 减小音量
+        function subVolume() {
+            var volume = mp.getVolume();
+            if (volume > 5) {
+                volume -= 5;
+            }
+            mp.setVolume(volume);
+        }
+        // Silent mode; 静音模式
+        function silentMode() {
+            var flag;
+            flag = mp.getMuteFlag() > 0 ? 0 : 1;
+            mp.setMuteFlag(flag);
+        }
+        //进度条
+        function jindu(times) {
+            index = 0;
+            clearInterval(pro);
+            var timeEle = document.getElementById('jindu');
+            var boxEle = document.getElementById('box');
+            timeEle.style.display = 'block';
+            document.getElementById('img').style.display = 'block';
+            var time = mp.getMediaDuration();
+            var playtime = mp.getCurrentPlayTime();
+            document.getElementById('time').innerHTML = formatSeconds(time).toString();
+            //var pro = setInterval(getProgress(), 60);
+            getProgress();
+            pro = setTimeout(function () {
+                timeEle.style.display = 'none';
+                boxEle.style.display = 'none';
+                document.getElementById('img').style.display = 'none';
+            }, 3000);
+
+            function getProgress() {
+                var widths = 1000;
+                if (stbType == "HG680Y-YD12H") {
+                    widths = 320;
+                }
+                if (playtime !== 0) {
+                    boxEle.style.display = "block";
+                    boxEle.style.width = ((playtime / time) * widths) + "px";
+                }
+                document.getElementById('endtime').innerHTML = formatSeconds(playtime).toString();
+            }
+
+            function formatSeconds(value) {
+                var theTime = parseInt(value); // 秒
+                var theTime1 = 0; // 分
+                var theTime2 = 0; // 小时
+                if (theTime > 60) {
+                    theTime1 = parseInt(theTime / 60);
+                    theTime = parseInt(theTime % 60);
+                    if (theTime1 > 60) {
+                        theTime2 = parseInt(theTime1 / 60);
+                        theTime1 = parseInt(theTime1 % 60);
+                    }
+                }
+                var result = "" + parseInt(theTime) + "";
+                if (theTime1 > 0) {
+                    result = "" + parseInt(theTime1) + ":" + result;
+                }
+                if (theTime2 > 0) {
+                    result = "" + parseInt(theTime2) + ":" + result;
+                }
+                return result;
+            }
+        }
+    </script>
+    <style>
+        #jindu {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            left: 140px;
+            width: 1000px;
+            height: 20px;
+            border-style: solid;
+            border-width: 5px;
+            background-color: rgba(255, 255, 255, 0.486);
+            border-radius: 25px;
+            border-color: rgba(24, 89, 209, 0.6);
+        }
+
+        #box {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            left: 140px;
+            width: 0px;
+            height: 20px;
+            border-style: solid;
+            background-color: rgba(46, 41, 41, 0.6);
+            border-width: 5px;
+            border-radius: 30px;
+            border-color: rgba(36, 73, 238, 0.856);
+        }
+
+        #time {
+            position: absolute;
+            right: -30px;
+            bottom: -20px;
+            color: #FFFFFF;
+            font-size: 16px;
+        }
+
+        #endtime {
+            position: absolute;
+            right: -30px;
+            bottom: -20px;
+            color: rgb(181, 27, 219);
+            font-size: 16px;
+        }
+
+        #img {
+            display: none;
+            position: absolute;
+            bottom: 120px;
+            left: 600px;
+            width: 100px;
+            height: 41px;
+        }
+
+        #play {
+            width: 100px;
+            height: 41px;
+            opacity: 0.7;
+        }
+
+        .btn {
+            position: absolute;
+            width: 150px;
+            height: 61px;
+        }
+
+        #tui {
+            display: none;
+            position: absolute;
+            width: 1280px;
+            height: 720px;
+            left: 0px;
+            bottom: 0px;
+            background-color: rgba(32, 30, 30, 0.76);
+            color:#fff;
+        }
+
+        #img0 {
+            left: 600px;
+            bottom: 430px;
+        }
+
+        #img1 {
+            opacity: 0.4;
+            left: 600px;
+            bottom: 520px;
+        }
+    </style>
+</head>
+
+<body bgcolor="transparent" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="background-color: transparent;
+">
+<div id="jindu">
+    <span id="time" class="time"></span>
+</div>
+<div id="box">
+    <span id="endtime" class="time"></span>
+</div>
+<div id="img"><img id="play" src="/epg/images/pause.png" alt=""></div>
+<div id="tui">
+    <img id="img0" class="btn" src="/epg/images/backImage_11_meitu_1.png" alt="">
+    <img id="img1" class="btn" src="/epg/images/continueImage_11.png" alt="">
+</div>
+</body>
+<script>
+    if (stbType == "HG680Y-YD12H" || stbType == "HG680") {
+        document.getElementById("jindu").style.width = "320px";
+        document.getElementById("jindu").style.top = "430px";
+        document.getElementById("box").style.width = "320px";
+        document.getElementById("box").style.top = "430px";
+        document.getElementById("img").style.top = "380px";
+        document.getElementById("img").style.left = "246px";
+        document.getElementById('img0').style.left = "246px";
+        document.getElementById('img1').style.left = "246px";
+    }
+
+</script>
+
+</html>

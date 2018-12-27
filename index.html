@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>首页</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="page-view-size" content="1280*720">
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="js/cycle.js"></script>
+    <script type="text/javascript" src="js/href.js"></script>
+    <script type="text/javascript" src="js/ajax.js"></script>
+    <style>
+        #kong {
+            position: absolute;
+            top: 372px;
+            left: 475px;
+            color: #ffffff;
+            font-size: 35px;
+            z-index: 1;
+        }
+        #gengduo {
+            position: absolute;
+            top: 372px;
+            left: 775px;
+            color: #ffffff;
+            font-size: 25px;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="show" class="">
+        <img src="images/showImg/dancer_1.jpg">
+    </div>
+    <div id="kong" class="yinCang">系统故障 请联系管理员或者客服</div>
+    <div id="gengduo" class="yinCang">暂无更多推荐</div>
+    <div class="wp indexhtml">
+        <div class="top-navbar">
+            <ul id="ul-nav">
+                <li>
+                    <span href="" id="btn-a-1" style="width:110px;display: block;opacity: 1;">
+                        <div class="dg_btn"  id="btn-1">订购VIP</div>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="center" id="center" ></div>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    var totalCount=0;		  //栏目数
+    var totalContentCount=0;  //内容总数
+    var contentCurrentId=1;
+    var menuCurrentId=1;
+    var functionCurrentId=1;
+    var currentType="menu";  //当前焦点在menu菜单上 还是在content内容上 btn是订购按钮  function是三个选项
+    var contentarr=[];//第一排的
+    var changarr=[];//长方条的
+    var pages=1; 
+    var first=true;
+    var left=0;
+    var backurl=window.location.href;
+    var UserID =getUrlParam("UserID");
+    var UserToken=getUrlParam("UserToken")
+    var CarrierID=getUrlParam("CarrierID");
+    // var flag = getUrlParam("flag") !=undefined&&getUrlParam("flag")!=""? getUrlParam("flag") : true ;
+    var flag = sessionStorage.getItem('flag') != null?sessionStorage.setItem('flag', 1) : sessionStorage.setItem('flag', 0)
+    var orderurl="http://202.99.114.74:57301/epg/order.html?UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+rep(window.location.href,true)+"&ReturnErrorUrl="+rep(window.location.href,true);
+    //
+    // log({
+    //     mod:"test",
+    //     ac:"log",
+    //     orurl:orderurl,
+    // })
+    /* 
+        开屏js
+    */  
+    console.log(getUrlParam("ReturnInfo"))
+    flag = sessionStorage.getItem('flag') == 0 ? setTimeout(function () {$('#show').className+=" yinCang";},2000) : $('#show').className+=" yinCang";
+    $("#btn-a-1").setAttribute("href",orderurl);
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+    var uid=getUrlParam("uid");
+    //转换颜色
+    String.prototype.colorRgb = function(){
+    var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+    var sColor = this.toLowerCase();
+    if(sColor && reg.test(sColor)){
+        if(sColor.length === 4){
+            var sColorNew = "#";
+            for(var i=1; i<4; i+=1){ sColorNew +=sColor.slice(i,i+1).concat(sColor.slice(i,i+1)); } sColor=sColorNew; } //处理六位的颜色值
+                var sColorChange=[];
+                for(var i=1; i<7; i+=2){
+                     sColorChange.push(parseInt("0x"+sColor.slice(i,i+2)));
+                     } return "RGB(" + sColorChange.join(",") + ")" ; 
+                    }else{ 
+                        return sColor; 
+                    } 
+    };
+    function selectInfo(tab_id,page){
+        contentarr=[];
+        changarr=[];
+        $("#center").innerHTML="<div class=\"column\"style=\"margin-left:89px;\">\n" +
+            "            <!--固定模块，收藏，免费，最热-->\n" +
+            "            <div class=\"small_square\" id=\"function-1\" >\n" +
+            "                <span id=\"function-a-1\" href=\"http://202.99.114.74:57301/epg/free_list.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlfreelist="+backurl+"\">\n" +
+            "                    <img src=\"images/mfsp.png\"  class=\"imgsmall_square\"/>\n" +
+            "                </span>\n" +
+            "            </div>\n" +
+            "            <div class=\"small_square\" id=\"function-2\">\n" +
+            "                <span id=\"function-a-2\" href=\"http://202.99.114.74:57301/epg/fav.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlfav="+backurl+"\">\n" +
+            "                    <img src=\"images/wdsc.png\" class=\"imgsmall_square\"/>\n" +
+            "                </span>\n" +
+            "            </div>\n" +
+            "            <div class=\"small_square\" id=\"function-3\">\n" +
+            "                <span id=\"function-a-3\" href=\"http://202.99.114.74:57301/epg/history.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlhistory="+backurl+"\">\n" +
+            "                    <img src=\"images/zjgk.png\" class=\"imgsmall_square\"/>\n" +
+            "                </span>\n" +
+            "            </div>\n" +
+            "        </div>";
+        Ajax.get({
+            url: 'http://202.99.114.74:57301/api.php',
+            data: {
+                mod:"h5",
+                ac:"home",
+                tab_id:tab_id,
+                page:page,
+            },
+            success: function(data) {
+                        if(data.code==0){
+                            console.log(menuCurrentId)
+                            data=data.datas;
+                            console.log(data)
+                            totalCount=data.tab.length;
+                            totalContentCount=data.content.length;
+                            if (totalContentCount == 0) {
+                                removeClass("yinCang", "kong");
+                            }
+                            if(menuCurrentId==7 && totalContentCount == 0){
+                                removeClass("yinCang", "gengduo");
+                            }
+                            if(first){
+                                for(var i=1;i<data.tab.length+1;i++){
+                                    var div="";
+                                    if(i==1){
+                                        div="<li><div class=\"on\" id=\"menu-"+i+"\"><span id=\"menu-a-"+i+"\" tab_id=\""+data.tab[i-1].tab_id+"\">"+data.tab[i-1].name+"</span></div> </li>";
+                                    }else{
+                                        div="<li><div id=\"menu-"+i+"\"><span id=\"menu-a-"+i+"\" tab_id=\""+data.tab[i-1].tab_id+"\">"+data.tab[i-1].name+"</span></div> </li>";
+                                    }
+                                    $("#ul-nav").innerHTML+=div;
+                                }
+                                first=false;
+                            }
+                            var cont=[];
+                            for (var i=0;i<data.content.length;i++){
+                                var href="";
+                                if(data.content[i].entity=="playlist"){
+                                    href="http://202.99.114.74:57301/epg/detail.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&cid="+data.content[i].id+"&backUrldetail="+backurl;
+                                }else{
+                                    href="http://202.99.114.74:57301/epg/list.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&tab_id="+data.content[i].id+"&backUrllist="+backurl;
+                                }
+                                data.content[i].href=href;
+                                data.content[i].num=i+1;
+                                if(data.content[i].type==2){
+                                    changarr.push(i+1);
+                                }
+                                if(cont.length==0){
+                                    var arr=[];
+                                    arr.push(data.content[i])
+                                    cont.push(arr);
+                                    contentarr.push(i+1);
+                                }else{
+                                    if(data.content[i].type==2){
+                                        var arr=[];
+                                        arr.push(data.content[i])
+                                        cont.push(arr);
+                                        contentarr.push(i+1);
+
+                                    }else{
+                                        if(cont[cont.length-1][0].type==2||cont[cont.length-1].length==2){
+                                                var arr=[];
+                                                arr.push(data.content[i])
+                                                cont.push(arr);
+                                                contentarr.push(i+1);
+                                        }else if(cont[cont.length-1].length==1){
+                                            cont[cont.length-1].push(data.content[i]);
+                                        }
+                                    }
+                                }
+
+                            }
+                            for (var i=0;i<cont.length;i++){
+                                var div="<div class=\"column\">\n" ;
+                                if(cont[i][0].type==1){
+                                    for (var j=0;j<cont[i].length;j++){
+                                        div=div+"            <div class=\"square t\" id=\"content-"+cont[i][j].num+"\">\n" +
+                                            "                <span id=\"content-a-"+cont[i][j].num+"\" href=\""+cont[i][j].href+"\">\n" +
+                                            "                    <img src=\""+cont[i][j].pic+"\" class=\"imgsquare\"/>\n" +
+                                            "                    <div class=\"s_name\" style=\"background-color:"+cont[i][j].color.colorRgb() +"\">"+cont[i][j].name+"</div>\n" +
+                                            "                </span>\n" +
+                                            "            </div>\n";
+                                    }
+                                    div=div+ "        </div>";
+                                }else{
+                                    div="<div class=\"column\">\n" +
+                                        "      <div class=\"onerect\" id=\"content-"+cont[i][0].num+"\">\n" +
+                                        "        <span id=\"content-a-"+cont[i][0].num+"\" href=\""+cont[i][0].href+"\">\n" +
+                                            "          <img src=\""+cont[i][0].pic+"\"  class=\"imgonerect\">\n" +
+                                        "          <div class=\"name\" style=\"background-color: "+cont[i][0].color.colorRgb()+"\">"+cont[i][0].name+"</div>\n" +
+                                        "        </span>\n" +
+                                        "      </div>\n" +
+                                        "    </div>";
+                                }
+                                $("#center").innerHTML+=div;
+                            }
+                        }
+            },
+            async: false
+        })
+
+    }
+    window.onload=function (ev) {
+        selectInfo("",pages);
+    }
+    function jumpPage() {
+        if (event.keyCode==37 || event.keyCode=="KEY_LEFT")//左
+            fun_left();
+        if (event.keyCode==38 || event.keyCode=="KEY_UP")//上
+            fun_up();
+        if (event.keyCode==39 || event.keyCode=="KEY_RIGHT" )//右
+            fun_right();
+        if (event.keyCode==40 || event.keyCode=="KEY_DOWN" )//下
+            fun_down();
+        if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
+            fun_enter();
+        if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 ) {
+          window.location.href="http://202.99.114.74:57301/epg/detainment.html?returnInfo="+rep(getUrlParam("ReturnInfo"),true)+"&jx="+rep(window.location.href,true);
+        }
+          
+    }   
+    function fun_left(){
+        if(currentType=="menu"&&menuCurrentId!=1){
+            left=0;
+            $("#center").setAttribute("style","");
+            contentCurrentId=1;
+            removeClass("on","menu-"+menuCurrentId);
+            menuCurrentId=menuCurrentId-1;
+            var tab_id=$("#menu-a-"+menuCurrentId).getAttribute("tab_id");
+            selectInfo(tab_id,pages);
+            document.getElementById("menu-"+menuCurrentId).className+=" on";
+        }else if(currentType=="menu"&&menuCurrentId==1){
+            currentType="btn";
+            document.getElementById("btn-1").className+=" dg_btn_on";
+        }else if(currentType=="content" && contentCurrentId!=1 ){
+            var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
+            if (innum>2&&left<0){
+                left+=280;
+                $("#center").setAttribute("style","left:"+left+"px;");
+            }
+            console.log(left)
+            removeClass("kuang","content-"+contentCurrentId);
+            var retsult1=changarr.indexOf(contentCurrentId-1);
+            if(retsult1>=0){
+                contentCurrentId=contentCurrentId-1;
+            }else{
+                if(contentCurrentId!=2){
+                    contentCurrentId=contentCurrentId-2;
+                }else{
+                    contentCurrentId=contentCurrentId-1;
+                }
+            }
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }else if(currentType=="content" && contentCurrentId==1 ){
+
+            currentType="function";
+            functionCurrentId=1;
+            removeClass("kuang","content-"+contentCurrentId);
+            document.getElementById("function-"+functionCurrentId).className+=" kuang";
+        }
+    }
+    function fun_right(){
+        if(currentType=="btn"){
+            currentType="menu"
+            removeClass("dg_btn_on","btn-1");
+            menuCurrentId=1;
+            document.getElementById("menu-1").className+=" on";
+        }else if( currentType=="menu" && menuCurrentId <totalCount){
+            left=0;
+            $("#center").setAttribute("style","");
+            contentCurrentId=1;
+            removeClass("on","menu-"+menuCurrentId);
+            menuCurrentId=menuCurrentId+1;
+            var tab_id=$("#menu-a-"+menuCurrentId).getAttribute("tab_id");
+            selectInfo(tab_id,pages);
+            document.getElementById("menu-"+menuCurrentId).className+=" on";
+        }else if(currentType=="function"){
+            currentType="content"
+            removeClass("kuang","function-"+functionCurrentId);
+            contentCurrentId=1;
+            document.getElementById("content-1").className+=" kuang";
+        }
+        else if( currentType=="content" && contentCurrentId<totalContentCount ) {
+            var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
+
+            if (innum>=2&&left>-((contentarr.length-3)*280)){
+                left-=280;
+                $("#center").setAttribute("style","left:"+left+"px;");
+            }
+            console.log(left)
+            removeClass("kuang", "content-" + contentCurrentId);
+            var retsult1=changarr.indexOf(contentCurrentId+1);
+            if(retsult1>=0){
+                contentCurrentId=contentCurrentId+1;
+            }else{
+                // 这里之前是+2
+                if(contentCurrentId+1>=totalContentCount){
+                    contentCurrentId=contentCurrentId+1;
+                }else{
+                    contentCurrentId=contentCurrentId+2;
+                }
+            }
+            document.getElementById("content-" + contentCurrentId).className += " kuang";
+        }
+    }
+    function fun_up(){
+        if(currentType=="function"&&functionCurrentId!=1){
+            removeClass("kuang","function-"+functionCurrentId);
+            functionCurrentId=functionCurrentId-1;
+            document.getElementById("function-"+functionCurrentId).className+=" kuang";
+        }else if(currentType=="function"&&functionCurrentId==1){
+            removeClass("kuang","function-"+functionCurrentId);
+            currentType="menu";
+            document.getElementById("menu-"+menuCurrentId).className+=" on";
+        } else if( currentType=="content"){
+            removeClass("kuang","content-"+contentCurrentId);
+            var result = contentarr.indexOf(contentCurrentId);
+            if(result>=0){
+                currentType="menu";
+                document.getElementById("menu-"+menuCurrentId).className+=" on";
+            }else{
+                contentCurrentId=contentCurrentId-1;
+                document.getElementById("content-"+contentCurrentId).className+=" kuang";
+            }
+        }
+    }
+    function fun_down(){
+        if(currentType=="btn"){
+            removeClass("dg_btn_on","btn-1");
+            currentType="content";
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }else if(currentType=="menu"){
+            currentType="content";
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }else if(currentType=="function"&&functionCurrentId!=3){
+            removeClass("kuang","function-"+functionCurrentId);
+            functionCurrentId=functionCurrentId+1;
+            document.getElementById("function-"+functionCurrentId).className+=" kuang";
+        }else if(currentType=="content"&&contentCurrentId<totalContentCount){
+            removeClass("kuang","content-"+contentCurrentId);
+            contentCurrentId=contentCurrentId+1;
+            console.log(contentCurrentId)
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }
+    }
+    function fun_enter(){
+        if(currentType=="menu"){
+
+        }
+        if(currentType=="btn"){
+            window.location.href=$("#btn-a-1").getAttribute("href");
+        }
+        if(currentType=="function"){
+            window.location.href=$("#function-a-"+functionCurrentId).getAttribute("href");
+        }
+        if(currentType=="content"){
+            window.location.href=$("#content-a-"+contentCurrentId).getAttribute("href");
+        }
+    }
+    document.onkeydown=jumpPage;
+    function removeClass(removeClassName,selectedId){
+        var classNames = document.getElementById(selectedId).className;
+        classNames=classNames.replace(/(^\s*)|(\s*$)/g, "");
+        var classNameArr = classNames.split(" ");
+        var okClassNames = "";
+        for (var ii = 0; ii < classNameArr.length; ii++) {
+            if(!(classNameArr[ii]==removeClassName)){
+                okClassNames+=" "+classNameArr[ii];
+            }
+        }
+        document.getElementById(selectedId).className=okClassNames;
+    }    
+</script>

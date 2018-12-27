@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>详情视频</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="page-view-size" content="1280*720">
+  <link rel="stylesheet" type="text/css" href="css/base.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <script type="text/javascript" src="js/href.js"></script>
+  <script type="text/javascript" src="js/ajax.js"></script>
+
+</head>
+
+<body>
+<div class="wp detailhtml">
+  <div class="try" id="img-1">
+
+  </div>
+  <div class="introduction" id="introduction">
+
+  </div>
+  <div class="videolist" id="videolist">
+
+  </div>
+</div>
+</body>
+
+</html>
+
+<script type="text/javascript">
+
+    var contentCurrentId=1;
+    var btnCurrentId=1;
+    var btnCount=3;			//栏目数
+    var totalContentCount=0;	//内容数
+    var currentType="content";  //当前在content内容上 btn是订购按钮
+    var left=0;
+    var isfav=0;             //1已收藏 0未收藏
+    var backurl=window.location.search.split("&backUrldetail=")[1];
+    var UserID =getUrlParam("UserID");
+    var UserToken=getUrlParam("UserToken");
+    var CarrierID=getUrlParam("CarrierID");
+    //获取url中的参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+
+    //ajax查询数据
+    function selectInfo(cid,uid) {
+        Ajax.get({
+            url:"http://202.99.114.74:57301/api.php",//请求首页数据
+            data:{
+                mod:"h5",
+                ac:"get_playlist",
+                cid:cid,
+                uid:uid,
+            },
+            success:function(data){
+                
+                if(data.code==0){
+                    data=data.datas;
+                    totalContentCount=data.video.length;
+                    isfav=data.playlist.isfav;
+                    console.log(data)
+                    var text=isfav==1?"取消收藏":"收藏";
+                    $("#img-1").innerHTML="<img src=\""+data.playlist.pic+"\"  class=\"try_img\" alt=\"\">";
+
+                    $("#introduction").innerHTML="<div class=\"title\">\n" +
+                        "      <div class=\"t_l\">"+data.playlist.title+"</div>\n" +
+                        "      <div class=\"t_r\">共"+data.playlist.video_num+"个视频</div>\n" +
+                        "      <div style=\"clear:both\"></div>\n" +
+                        "    </div>\n" +
+                        "    <div class=\"detail\">"+data.playlist.content+"</div>\n" +
+                        "    <div class=\"btns\">\n" +
+                        "      <div class=\"sc\" id=\"btn-1\">"+text+"</div>\n" +
+                        "      <div class=\"dg\" id=\"btn-2\">订购</div>\n" +
+                        // "      <div class=\"ydg\" id=\"btn-3\">已订购</div>\n" +
+                        "    </div>";
+
+                    for (var i=0;i<data.video.length;i++){
+
+                        if(i==0){
+                            $("#videolist").innerHTML+=
+                                "    <div class=\"one kuangd\"  id=\"content-"+(i+1)+"\" vid=\""+data.video[i].vid+"\">\n" +
+                                "      <div class=\"one_img\"><img style=\"width:100%;height:100%;\" src=\""+data.video[i].pic+"\"alt=\"\"></div>\n" +
+                                "      <div class=\"one_name\">"+data.video[i].title+"</div>\n" +
+                                "      <div class=\"one_time\">"+data.video[i].duration+"</div>\n" +
+                                "    </div>";
+                        }else{
+                            $("#videolist").innerHTML+=
+                                "    <div class=\"one\"  id=\"content-"+(i+1)+"\" vid=\""+data.video[i].vid+"\">\n" +
+                                "      <div class=\"one_img\"><img style=\"width:100%;height:100%;\" src=\""+data.video[i].pic+"\"alt=\"\"></div>\n" +
+                                "      <div class=\"one_name\">"+data.video[i].title+"</div>\n" +
+                                "      <div class=\"one_time\">"+data.video[i].duration+"</div>\n" +
+                                "    </div>";
+                        }
+                    }
+                }
+            },
+
+            async: false,
+        })
+    }
+
+    window.onload=function (ev) {
+        var cid = getUrlParam('cid');
+        var uid = getUrlParam("uid");
+        selectInfo(cid,uid);
+    }
+    function jumpPage() {
+        if (event.keyCode==37 || event.keyCode=="KEY_LEFT")//左
+            fun_left();
+        if (event.keyCode==38 || event.keyCode=="KEY_UP")//上
+            fun_up();
+        if (event.keyCode==39 || event.keyCode=="KEY_RIGHT" )//右
+            fun_right();
+        if (event.keyCode==40 || event.keyCode=="KEY_DOWN" )//下
+            fun_down();
+        if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
+            fun_enter();
+        if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
+            window.location.href=backurl;
+    }
+
+    function fun_left(){
+        if(currentType=="btn" && btnCurrentId!=1){
+            removeClass("kuang2","btn-"+btnCurrentId);
+            btnCurrentId=btnCurrentId-1;
+            document.getElementById("btn-"+btnCurrentId).className+=" kuang2";
+        }else if(currentType=="btn" && btnCurrentId==1){
+            removeClass("kuang2","btn-"+btnCurrentId);
+            btnCurrentId=1;
+            currentType="img";
+            document.getElementById("img-1").className+=" kuangi";
+        }
+        else if(currentType=="content" && contentCurrentId!=1 ){
+            var innum= contentCurrentId-1;
+            if (innum>2&&left<0){
+                left+=277;
+                $("#videolist").setAttribute("style","left:"+left+"px;");
+            }
+            removeClass("kuangd","content-"+contentCurrentId);
+            contentCurrentId=contentCurrentId-1;
+            document.getElementById("content-"+contentCurrentId).className+=" kuangd";
+        }
+    }
+    function fun_right(){
+        if(currentType=="img"){
+            removeClass("kuangi","img-1");
+            currentType="btn";
+            document.getElementById("btn-"+btnCurrentId).className+=" kuang2";
+        }else if(currentType=="btn"&& btnCurrentId<btnCount){
+            removeClass("kuang2","btn-"+btnCurrentId);
+            btnCurrentId=btnCurrentId+1;
+            document.getElementById("btn-"+btnCurrentId).className+=" kuang2";
+        }else if( currentType=="content" && contentCurrentId<totalContentCount ){
+            var innum=  contentCurrentId-1;
+            if (innum>=2&&left>-((totalContentCount-3)*277)){
+                left-=277;
+                $("#videolist").setAttribute("style","left:"+left+"px;");
+            }
+            console.log(left)
+            removeClass("kuangd","content-"+contentCurrentId);
+            contentCurrentId=contentCurrentId+1;
+            document.getElementById("content-"+contentCurrentId).className+=" kuangd";
+        }
+    }
+    function fun_up(){
+        if( currentType=="content") {
+            removeClass("kuangd", "content-" + contentCurrentId);
+            currentType="img";
+            document.getElementById("img-1").className += " kuangi";
+        }
+    }
+    function fun_down(){
+        if(currentType=="img"){
+            removeClass("kuangi", "img-1");
+            currentType="content";
+            document.getElementById("content-" + contentCurrentId).className += " kuangd";
+        }else if(currentType=="btn"){
+            removeClass("kuang2", "btn-"+btnCurrentId);
+            currentType="content";
+            document.getElementById("content-" + contentCurrentId).className += " kuangd";
+        }
+    }
+
+    function fun_enter(){
+        if(currentType=="btn"){
+            if(btnCurrentId==1){
+                var url="http://202.99.114.74:57301/api.php";
+                 Ajax.get({
+                    url:url,//收藏
+                    data:{
+                        mod:"h5",
+                        ac: isfav==1? "unfav":"addfav",
+                        cid:getUrlParam('cid'),
+                        uid:getUrlParam("uid"),
+                    },
+                    success:function (data) {
+
+                        if(data.code==0){
+                            isfav= isfav==1?0:1;
+                            var text=isfav==1?"取消收藏":"收藏";
+                            $("#btn-1").innerHTML=text;
+                        }
+                    }
+                })
+            }else{
+                window.location.href="http://202.99.114.74:57301/epg/order.html?UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+rep(window.location.href,true)+"&ReturnErrorUrl="+rep(window.location.href,true);
+            }
+        }
+        else if(currentType=="content"){
+            Ajax.get({
+                url:"http://202.99.114.74:57301/api.php",//请求鉴权
+                data:{
+                    mod:"user",
+                    ac:"authorization",
+                    UserID:UserID,
+                    UserToken:UserToken,
+                    CarrierID:CarrierID,
+                },
+                success:function(data){
+
+                    var productId=data.datas.productList[0].productId;
+
+                    var cid=getUrlParam("cid");
+                    var uid=getUrlParam("uid");
+                    var vid=$("#content-"+contentCurrentId).getAttribute("vid");
+                    var ReturnSuccessUrl=rep("http://202.99.114.74:57301/epg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href,"&","--")
+                    var ReturnErrorUrl=rep(window.location.href,true);
+                    if(data.code==0){
+                        window.location.href= "http://202.99.114.74:57301/epg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href;
+                    }else{
+                        window.location.href= "http://202.99.114.74:57301/epg/order.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+ReturnSuccessUrl+"&ReturnErrorUrl="+ReturnErrorUrl;
+                    }
+                },
+
+                async: false,
+            })
+
+        }
+    }
+    document.onkeydown=jumpPage;
+    function removeClass(removeClassName,selectedId){
+        var classNames = document.getElementById(selectedId).className;
+        classNames=classNames.replace(/(^\s*)|(\s*$)/g, "");
+        var classNameArr = classNames.split(" ");
+        var okClassNames = "";
+        for (var ii = 0; ii < classNameArr.length; ii++) {
+            if(!(classNameArr[ii]==removeClassName)){
+                okClassNames+=" "+classNameArr[ii];
+            }
+        }
+        document.getElementById(selectedId).className=okClassNames;
+    }
+</script>

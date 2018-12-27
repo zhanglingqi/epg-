@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>我的收藏</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="page-view-size" content="1280*720">
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="js/href.js"></script>
+    <script type="text/javascript" src="js/ajax.js"></script>
+    <style>
+        .c1{
+            padding-left:89px;
+        }
+        #noneMsg {
+            color: #ffffff;
+            position: absolute;
+            top:91px;
+            left: 558px;
+            font-size: 30px;
+        }
+        #fhbtn {
+            position: absolute;
+        }
+        .wh {
+            width: 300px;
+            top:167px;
+            left: 501px;
+            display: none;
+        }
+        .wh1 {
+            width: 300px;
+            top:167px;
+            left: 501px;
+        }
+        .whimg {
+            width: 400px;
+            top: 147px;
+            left: 448px;
+        }
+        .img {
+            width: 100%;
+            height: 100%;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="wp listhtml"  >
+    <div class="wp-list-top" id="wp-list-top">
+
+    </div>
+
+    <div class="center c1" id="center" style="">
+        <div id="noneMsg" class=""></div>
+        <!-- <div id="fhbtn" class="wh">
+            <img  class="img" src="images/jxgk.png" alt="">
+        </div> -->
+    </div>
+</div>
+</body>
+
+</html>
+<script type="text/javascript">
+    var contentCurrentId=1;
+    var totalContentCount=0;	//内容数
+    var currentType="content";  //还是在content内容上
+    var changarr=[];//长方条的
+    var backurl=window.location.search.split("&backUrlfav=")[1];
+    var UserID =getUrlParam("UserID");
+    var UserToken=getUrlParam("UserToken")
+    var CarrierID=getUrlParam("CarrierID");
+    var left=0;
+    //获取url中的参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+
+    //ajax查询数据
+    function selectInfo(uid){
+        contentarr=[];
+        changarr=[];
+        Ajax.get({
+            url:"http://202.99.114.74:57301/api.php",//请求首页数据
+            data:{
+                mod:"h5",
+                ac:"user_fav",
+                uid:uid,
+            },
+            success:function (data) {
+                if(data.code==0){
+                    data=data.datas;
+                    totalContentCount=data.content.length;
+                    if (totalContentCount == 0 ) {
+                        $("#noneMsg").innerHTML = "暂无收藏视频";
+                        // $("#fhbtn").className=" wh1";
+                    } 
+                    var cont=[];
+                    $("#wp-list-top").innerHTML=" <div class=\"top_left\">我的收藏</div>\n" +
+                        "      <div class=\"top_right\">共"+data.content.length+"种</div>";
+                    for (var i=0;i<data.content.length;i++){
+                        data.content[i].href="http://202.99.114.74:57301/epg/detail.html?uid="+uid+"&cid="+data.content[i].cid+"&UserID="+UserID+"&UserToken="+UserToken+"&CarrierID="+CarrierID+"&backUrldetail="+window.location.href;
+                        data.content[i].num=i+1;
+                        if(data.content[i].type==2){
+                            changarr.push(i+1);
+                        }
+                        if(cont.length==0){
+                            var arr=[];
+                            arr.push(data.content[i])
+                            cont.push(arr);
+                            contentarr.push(i+1);
+                        }else{
+                            if(data.content[i].type==2){
+                                var arr=[];
+                                arr.push(data.content[i])
+                                cont.push(arr);
+                                contentarr.push(i+1);
+                            }else{
+                                if(cont[cont.length-1][0].type==2||cont[cont.length-1].length==2){
+                                    var arr=[];
+                                    arr.push(data.content[i])
+                                    cont.push(arr);
+                                    contentarr.push(i+1);
+                                }else if(cont[cont.length-1].length==1){
+                                    cont[cont.length-1].push(data.content[i]);
+                                }else{
+
+                                }
+                            }
+                        }
+
+                    }
+                    console.log(cont)
+                    for (var i=0;i<cont.length;i++){
+                        var div="<div class=\"column\">\n" ;
+                        if(cont[i][0].type==1){
+                            for (var j=0;j<cont[i].length;j++){
+                                if(cont[i][j].num==1){
+                                    div=div+"            <div class=\"square t kuang\" id=\"content-"+cont[i][j].num+"\">\n" +
+                                        "                <span id=\"content-a-"+cont[i][j].num+"\" href=\""+cont[i][j].href+"\">\n" +
+                                        "                    <img src=\""+cont[i][j].pic+"\" class=\"imgsquare\"/>\n" +
+                                        "                    <div class=\"s_name\" style=\"background-color:"+cont[i][j].color+"\">"+cont[i][j].name+"</div>\n" +
+                                        "                </span>\n" +
+                                        "            </div>\n";
+                                }else{
+                                    div=div+"            <div class=\"square t\" id=\"content-"+cont[i][j].num+"\">\n" +
+                                        "                <span id=\"content-a-"+cont[i][j].num+"\" href=\""+cont[i][j].href+"\">\n" +
+                                        "                    <img src=\""+cont[i][j].pic+"\" class=\"imgsquare\"/>\n" +
+                                        "                    <div class=\"s_name\" style=\"background-color:"+cont[i][j].color+"\">"+cont[i][j].name+"</div>\n" +
+                                        "                </span>\n" +
+                                        "            </div>\n";
+                                }
+                            }
+                            div=div+ "        </div>";
+                        }else{
+                            if(cont[i][0].num==1){
+                                div="<div class=\"column \">\n" +
+                                    "      <div class=\"onerect kuang\" id=\"content-"+cont[i][0].num+"\">\n" +
+                                    "        <span id=\"content-a-"+cont[i][0].num+"\" href=\""+cont[i][0].href+"\">\n" +
+                                    "          <img src=\""+cont[i][0].pic+"\"  class=\"imgonerect\">\n" +
+                                    "          <div class=\"name\" style=\"background-color: "+cont[i][0].color+"\">"+cont[i][0].name+"</div>\n" +
+                                    "        </span>\n" +
+                                    "      </div>\n" +
+                                    "    </div>";
+                            }else{
+                                div="<div class=\"column \">\n" +
+                                    "      <div class=\"onerect\" id=\"content-"+cont[i][0].num+"\">\n" +
+                                    "        <span id=\"content-a-"+cont[i][0].num+"\" href=\""+cont[i][0].href+"\">\n" +
+                                    "          <img src=\""+cont[i][0].pic+"\"  class=\"imgonerect\">\n" +
+                                    "          <div class=\"name\" style=\"background-color: "+cont[i][0].color+"\">"+cont[i][0].name+"</div>\n" +
+                                    "        </span>\n" +
+                                    "      </div>\n" +
+                                    "    </div>";
+                            }
+
+                        }
+                        $("#center").innerHTML+=div;
+                    }
+                }
+            },
+            async: false,
+
+        })
+    }
+    window.onload= function(){
+        var uid = getUrlParam('uid');
+        selectInfo(uid);
+    };
+    function jumpPage() {
+        if (event.keyCode==37 || event.keyCode=="KEY_LEFT")//左
+            fun_left();
+        if (event.keyCode==38 || event.keyCode=="KEY_UP")//上
+            fun_up();
+        if (event.keyCode==39 || event.keyCode=="KEY_RIGHT" )//右
+            fun_right();
+        if (event.keyCode==40 || event.keyCode=="KEY_DOWN" )//下
+            fun_down();
+        if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
+            fun_enter();
+        if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
+            window.location.href=backurl;
+    }
+    function GoUrl(_url) {
+        window.location.href = _url;
+    }
+    function fun_left(){
+        if(currentType=="content" && contentCurrentId!=1 &&contentCurrentId!=2 ){
+            var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
+            if (innum>3&&left<0){
+                left+=280;
+                $("#center").setAttribute("style","left:"+left+"px;");
+            }
+            removeClass("kuang","content-"+contentCurrentId);
+            var retsult1=changarr.indexOf(contentCurrentId-1);
+            if(retsult1>=0){
+                contentCurrentId=contentCurrentId-1;
+            }else{
+                contentCurrentId=contentCurrentId-2;
+            }
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }
+        // console.log(document.getElementById("fhbtn").className.indexOf('whimg'))
+        // if (document.getElementById("fhbtn").className.indexOf('whimg') == -1) {
+        //     document.getElementById("fhbtn").className=" whimg";
+        // }
+        
+    }
+    function fun_right(){
+        if( currentType=="content" && contentCurrentId<totalContentCount ){
+            var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
+            if (innum>=3&&left>-((contentarr.length-4)*280)){
+                left-=280;
+                $("#center").setAttribute("style","left:"+left+"px;");
+            }
+            console.log(left)
+            removeClass("kuang","content-"+contentCurrentId);
+            if(contentCurrentId+2>totalContentCount){
+                contentCurrentId=contentCurrentId+1;
+            }else{
+                contentCurrentId=contentCurrentId+2;
+            }
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }
+        // if (document.getElementById("fhbtn").className.indexOf('whimg') != -1) {
+        //     document.getElementById("fhbtn").className=" whimg";
+        // }
+    }
+    function fun_up(){
+        if( currentType=="content"&&contentCurrentId!=1){
+            removeClass("kuang","content-"+contentCurrentId);
+            contentCurrentId=contentCurrentId-1;
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }
+        // if (document.getElementById("fhbtn").className.indexOf('whimg') != -1) {
+        //     document.getElementById("fhbtn").className=" whimg";
+        // }
+    }
+    function fun_down(){
+        if(currentType=="content"&&contentCurrentId<totalContentCount){
+            removeClass("kuang","content-"+contentCurrentId);
+            contentCurrentId=contentCurrentId+1;
+            document.getElementById("content-"+contentCurrentId).className+=" kuang";
+        }
+        // if (document.getElementById("fhbtn").className.indexOf('whimg') != -1) {
+        //     document.getElementById("fhbtn").className=" whimg";
+        // }
+    }
+    function fun_enter(){
+        window.location.href=$("#content-a-"+contentCurrentId).getAttribute("href");
+        // if (document.getElementById("fhbtn").className.indexOf('whimg') == 1) {
+        //     console.log("进来了")
+        //     window.location.href=$("#content-a-"+contentCurrentId).getAttribute("href");
+        // } else {
+        //     console.log("出来了")
+        //     window.location.href=backurl;
+        // }
+        
+    }
+    document.onkeydown=jumpPage;
+    function removeClass(removeClassName,selectedId){
+        var classNames = document.getElementById(selectedId).className;
+        classNames=classNames.replace(/(^\s*)|(\s*$)/g, "");
+        var classNameArr = classNames.split(" ");
+        var okClassNames = "";
+        for (var ii = 0; ii < classNameArr.length; ii++) {
+            if(!(classNameArr[ii]==removeClassName)){
+                okClassNames+=" "+classNameArr[ii];
+            }
+        }
+        document.getElementById(selectedId).className=okClassNames;
+    }
+</script>

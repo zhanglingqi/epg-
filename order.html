@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>订购页</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="page-view-size" content="1280*720">
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script src="js/href.js"></script>
+    <script src="js/ajax.js"></script>
+
+</head>
+<body>
+<div class="wp">
+    <img src="/epg/images/order.jpg" style="width:1280px;height:720px;position:absolute;" alt="">
+    <div id="hide" style="display: none;"></div>
+    <div id="text" style="display: none;">
+        已经订购过了呢~不用重复订购~
+    </div>
+</div>
+</body>
+<script>
+
+
+    var ErrorUrl=rep(window.location.search.split("&ReturnErrorUrl=")[1],false);
+    var ReturnSuccessUrl=getUrlParam("ReturnSuccessUrl");
+    var ReturnErrorUrl=window.location.search.split("&ReturnErrorUrl=")[1];
+
+    function echoUrl(proid) {
+        var aaa="http://202.99.114.74:57301/api.php?"+
+            "mod=user&ac=serviceorder&UserID="+getUrlParam("UserID")+
+            "&UserToken="+getUrlParam("UserToken")+
+            "&CarrierID="+getUrlParam("CarrierID")+
+            "&ProductID="+proid+
+            "&ReturnSuccessUrl="+ReturnSuccessUrl+
+            "&ReturnErrorUrl="+ReturnErrorUrl
+        ;
+        return aaa;
+    }
+    //获取url中的参数
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+    function jumpPage() {
+        if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
+            fun_enter();
+        if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
+            window.location.href="http://202.99.114.74:57301/epg/outorder.html?jx="+rep(window.location.href,true)+"&out="+rep(ErrorUrl,true);
+    }
+    function fun_enter(){
+        Ajax.get({
+            url:"http://202.99.114.74:57301/api.php",
+            data:{
+                mod:"user",
+                ac:"authorization",
+                UserID:getUrlParam("UserID"),
+                UserToken:getUrlParam("UserToken"),
+                CarrierID:getUrlParam("CarrierID"),
+            },
+            success:function(data){
+
+                var productId=data.datas.productList[0].productId;
+                if(data.code==0){
+
+                    $("#text").setAttribute("style","");
+                    $("#hide").setAttribute("style","");
+                    setTimeout(function () {
+                        $("#text").setAttribute("style","display:none");
+                        $("#hide").setAttribute("style","display:none")
+                    },2000)
+                }else{
+
+                    // log({
+                    //     mod:"test",
+                    //     ac:"log",
+                    //     zzz:,
+                    //     pro:productId,
+                    //     data:JSON.stringify(data)
+                    // })
+                    window.location.href=echoUrl(productId);
+                }
+            },
+            async: false,
+        })
+    }
+    document.onkeydown=jumpPage;
+    function removeClass(removeClassName,selectedId){
+        var classNames = document.getElementById(selectedId).className;
+        classNames=classNames.replace(/(^\s*)|(\s*$)/g, "");
+        var classNameArr = classNames.split(" ");
+        var okClassNames = "";
+        for (var ii = 0; ii < classNameArr.length; ii++) {
+            if(!(classNameArr[ii]==removeClassName)){
+                okClassNames+=" "+classNameArr[ii];
+            }
+        }
+        document.getElementById(selectedId).className=okClassNames;
+    }
+</script>
+</html>
