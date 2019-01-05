@@ -22,7 +22,6 @@
                  uid:getParameterByName("uid")
             },
             success: function(data) {
-
                 if(data.code==0){
                     playUrl=data.datas.cdn;
                     playUrl = playUrl.replace('http', 'rtsp');
@@ -30,6 +29,7 @@
             },
             async: false
         })
+        
         // Get stbType; 获取机顶盒型号
         if (window.Authentication && Authentication.CTCGetConfig) {
             stbType = Authentication.CTCGetConfig('STBType');

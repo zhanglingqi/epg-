@@ -1,58 +1,69 @@
 @charset "utf-8";
+html body {
+    width: 640px;
+    height: 530px;
+    background-color: #000000;
+}
 .wp{
-    width:1280px;
-    height:720px;
+    width:640px;
+    height:530px;
     overflow:hidden;
     position:absolute;
     line-height:30px;
+    left: 0px;
+    top: 0px;
 }
 .indexhtml{
     background: url("../images/wp_bg.png") no-repeat;
+    background-size:640px 530px;
 }
 .listhtml{
     background: url("../images/wp_bg2.png") no-repeat;
+    background-size:640px 530px;
 }
 .orderhtml{
     background: url("../images/order.jpg") no-repeat;
+    background-size:640px 530px;
 }
 .videohtml{
     background: url("../images/wp_bg2.png") no-repeat;
+    background-size:640px 530px;
 }
 .wp .top-navbar{
     position:absolute;
     font-size:24px;
     color:#fff;
-    top:80px;
-    left:278px;
+    top:32px;
+    left:109px;
 }
 .dg_btn{
-    width: 92px;
+    width: 60px;
     height: 30px;
     border-radius: 15px;
-    color:#fff;
+    color: #fff;
     background-color: #d5124b;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 30px;
     text-align: center;
     font-family: MicrosoftYaHei;
 
 }
 .dg_btn_on{
-    width: 110px;
-    height: 36px;
-    border-radius: 18px;
-    color:#fff;
-    background-color: #d5124b;
-    font-size: 18px;
-    line-height: 36px;
-    text-align: center;
-    font-family: MicrosoftYaHei;
-    position: relative;
-    z-index:1;
+        width: 72px;
+        height: 31px;
+        border-radius: 18px;
+        color: #fff;
+        background-color: #d5124b;
+        font-size: 16px;
+        line-height: 32px;
+        text-align: center;
+        font-family: MicrosoftYaHei;
+        position: relative;
+        z-index: 1;
 }
 .wp .top-navbar ul li {
     float:left;
-    margin-right:30px;
+    margin-right:9px;
     position: relative;
     /*width:10px;*/
 }
@@ -60,7 +71,7 @@
 .wp .top-navbar ul li span{
     color:#fff;
     text-decoration:none;
-    font-size:22px;
+    font-size:15px;
     opacity: 0.7;
 }
 .wp .top-navbar ul li div.on{
@@ -68,10 +79,10 @@
 
 }
 .wp .top-navbar ul li div.on span{
-    color:#FFF;
+    color:#ffff00;
     font-weight: normal;
     font-stretch: normal;
-    font-size:26px;
+    font-size:17px;
     opacity: 1;
     position: relative;
     z-index: 111;
@@ -85,7 +96,8 @@
     color:#fff;
     position: absolute;
     text-indent:10px;
-    font-size: 20px;
+    font-size: 17px;
+    text-align: center;
 }
 .s_name{
     line-height: 40px;
@@ -96,19 +108,19 @@
     color:#fff;
     position: absolute;
     text-indent:10px;
-    font-size: 20px;
+    font-size: 17px;
 }
 .square,.imgsquare{
-    width:277px;
-    height:215px;
+    width: 206px;
+    height: 179px;
 }
 .square{
     position: relative;
-    margin: 0 14px 21px 0;
+    margin: 0 7px 12px 0;
 }
 .small_square{
-    width:182px;
-    height:140px;
+    width:93px;
+    height:112px;
     margin: 0 14px 16px 0;
 }
 .imgsmall_square{
@@ -117,14 +129,13 @@
 }
 .center{
     position: absolute;
-    top:176px;
+    top:114px;
     left:0;
     width: 100000px;
 }
 .column{
     float: left;
-    /*width:280px;*/
-    height:460px;
+    /* height:460px; */
 }
 .rectangle{
     margin: 0 10px 10px 0;
@@ -137,14 +148,14 @@
     float: left;
 }
 .onerect{
-    width:280px;
-    height:451px;
-    margin-right:10px;
+    width: 178px;
+    height: 371px;
+    margin-right:7px;
     position: relative;
 }
 .imgonerect{
-    width:280px;
-    height:451px;
+    width: 178px;
+    height: 371px;
 }
 .kuang{
     z-index:9999;
@@ -180,30 +191,31 @@
 
 /*------------list.html--------------*/
 .wp-list-top{
-    position:absolute;
-    font-size:24px;
-    color:#fff;
-    top:68px;
-    left:103px;
-    width:1100px;
+    position: absolute;
+    font-size: 26px;
+    color: #fff;
+    top: 50px;
+    left: 23px;
+    width: 589px;
     margin: 0 auto;
 }
 .top_left{
     float: left;
-    font-size: 30px;
+    font-size: 25px;
 }
 .top_right{
     float: right;
+    font-size: 18px;
 }
 
 
 /*-------------detail.html--------------*/
 .try{
-    width: 410px;
-    height: 250px;
+    width: 225px;
+    height: 138px;
     position: absolute;
-    top:90px;
-    left:90px;
+    top: 28px;
+    left: 14px;
 }
 .try_img{
     width:100%;
@@ -213,64 +225,64 @@
     background: url("../images/wp_bg1.png") no-repeat;
 }
 .introduction{
-    width:658px;
+    width: 386px;
     position: absolute;
-    top:90px;
-    left:519px;
+    top: 28px;
+    left: 250px;
 }
 .title{
     width:100%;
 }
 .title .t_l{
-    height: 42px;
+    height: 28px;
     float: left;
-    font-size: 42px;
+    font-size: 28px;
     font-weight: normal;
     font-stretch: normal;
-    line-height: 42px;
+    line-height: 28px;
     letter-spacing: 0px;
-    color: #ffffff;
+    color: #ffffff;;
 }
 .title .t_r{
-    height: 42px;
+    height: 28px;
     float: right;
-    font-size: 21px;
+    font-size: 18px;
     font-weight: normal;
     font-stretch: normal;
-    line-height: 42px;
+    line-height: 28px;
     letter-spacing: 0px;
     color: #ffffff;
-    margin-right: 20px;
+    margin-right: 41px;
 }
 .detail{
-    width:100%;
-    font-size: 16px;
+    width: 100%;
+    font-size: 15px;
     font-weight: normal;
     font-stretch: normal;
-    line-height: 32px;
+    line-height: 17px;
     letter-spacing: 0px;
     color: #ffffff;
-    margin-top:26px;
-    height: 125px;
+    margin-top: 8px;
+    height: 66px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp:4;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
 }
 .btns{
     width: 100%;
-    margin-top:32px;
+    margin-top:10px;
     color:#fff;
 }
 .sc,.dg,.ydg {
-    width: 110px;
-    height: 30px;
-    border-radius: 15px;
+    width: 85px;
+    height: 23px;
+    border-radius: 9px;
     font-size: 12px;
     font-weight: normal;
     font-stretch: normal;
-    line-height: 30px;
+    line-height: 23px;
     text-align: center;
     float: left;
     margin-right: 25px;
@@ -285,14 +297,14 @@
     background-color: #EFEFEF;
 }
 .videolist{
-    padding-left: 50px;
-    top:462px;
+    padding-left: 14px;
+    top: 229px;
     position: absolute;
-    width:1000000px;
+    width: 1000000px;
 }
 .one{
-    width: 277px;
-    height: 168px;
+    width: 235px;
+    height: 167px;
     background-color: #ffffff;
     margin-right: 14px;
     float: left;
@@ -333,15 +345,15 @@
 }
 
 .kuang2{
-    z-index:9999;
+    z-index: 9999;
     position: relative;
-    border-radius: 3px;
-    width: 132px;
-    height: 36px;
-    font-size: 20px;
+    border-radius: 12px;
+    width: 95px;
+    height: 31px;
+    font-size: 18px;
     font-weight: normal;
     font-stretch: normal;
-    line-height: 36px;
+    line-height: 31px;
     text-align: center;
     float: left;
     margin-right: 25px;

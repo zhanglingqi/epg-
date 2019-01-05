@@ -110,7 +110,7 @@
         if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
             fun_enter();
         if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
-            window.location.href=backurl;
+            window.location.href=getUrlParam("backUrlfreelist")+"&uid="+getUrlParam("uid")+"&ReturnInfo="+getUrlParam("ReturnInfo");
     }
     function GoUrl(_url) {
         window.location.href = _url;
@@ -151,7 +151,7 @@
             var cid=getUrlParam("cid");
             var uid=getUrlParam("uid");
             var vid=$("#content-"+contentCurrentId).getAttribute("vid");
-            window.location.href= "http://202.99.114.74:57301/epg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href;
+            window.location.href= "http://202.99.114.74:57301/sdepg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href;
         }
     }
     document.onkeydown=jumpPage;

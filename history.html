@@ -11,13 +11,13 @@
     <script type="text/javascript" src="js/ajax.js"></script>
     <style>
         .c1{
-            padding-left:89px;
+            padding-left:20px;
         }
         #noneMsg {
             color: #ffffff;
             position: absolute;
-            top:91px;
-            left: 558px;
+            top: 160px;
+            left: 231px;
             font-size: 30px;
         }
     </style>
@@ -77,7 +77,7 @@
                     $("#wp-list-top").innerHTML=" <div class=\"top_left\">观看历史</div>\n" +
                         "      <div class=\"top_right\">共"+data.content.length+"种</div>";
                     for (var i=0;i<data.content.length;i++){
-                        data.content[i].href="http://202.99.114.74:57301/epg/detail.html?uid="+uid+"&cid="+data.content[i].cid+"&UserID="+UserID+"&UserToken="+UserToken+"&CarrierID="+CarrierID+"&backUrldetail="+window.location.href;
+                        data.content[i].href="http://202.99.114.74:57301/sdepg/detail.html?uid="+uid+"&cid="+data.content[i].cid+"&UserID="+UserID+"&UserToken="+UserToken+"&CarrierID="+CarrierID+"&backUrldetail="+window.location.href;
                         data.content[i].num=i+1;
                         if(data.content[i].type==2){
                             changarr.push(i+1);
@@ -108,7 +108,6 @@
                         }
 
                     }
-                    console.log(cont)
                     for (var i=0;i<cont.length;i++){
                         var div="<div class=\"column\">\n" ;
                         if(cont[i][0].type==1){
@@ -176,7 +175,7 @@
         if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
             fun_enter();
         if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
-            window.location.href=backurl;
+            window.location.href=getUrlParam("backUrlhistory")+"&uid="+getUrlParam("uid")+"&ReturnInfo="+getUrlParam("ReturnInfo");
     }
     function GoUrl(_url) {
         window.location.href = _url;
@@ -205,7 +204,6 @@
                 left-=280;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
-            console.log(left)
             removeClass("kuang","content-"+contentCurrentId);
             if(contentCurrentId+2>totalContentCount){
                 contentCurrentId=contentCurrentId+1;

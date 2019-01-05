@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="wp">
-    <img src="/epg/images/order.jpg" style="width:1280px;height:720px;position:absolute;" alt="">
+    <img src="/sdepg/images/order.jpg" style="width:640px;height:530px;position:absolute;" alt="">
     <div id="hide" style="display: none;"></div>
     <div id="text" style="display: none;">
         已经订购过了呢~不用重复订购~
@@ -47,7 +47,7 @@
         if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
             fun_enter();
         if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
-            window.location.href="http://202.99.114.74:57301/epg/outorder.html?jx="+rep(window.location.href,true)+"&out="+rep(ErrorUrl,true);
+            window.location.href="http://202.99.114.74:57301/sdepg/outorder.html?jx="+rep(window.location.href,true)+"&out="+rep(ErrorUrl,true);
     }
     function fun_enter(){
         Ajax.get({

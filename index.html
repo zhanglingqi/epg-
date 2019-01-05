@@ -13,19 +13,23 @@
     <style>
         #kong {
             position: absolute;
-            top: 372px;
-            left: 475px;
+            top: 260px;
+            left: 173px;
             color: #ffffff;
-            font-size: 35px;
+            font-size: 28px;
             z-index: 1;
         }
         #gengduo {
             position: absolute;
-            top: 372px;
-            left: 775px;
+            top: 248px;
+            left: 275px;
             color: #ffffff;
             font-size: 25px;
             z-index: 1;
+        }
+        .sdsdd {
+            color: #ffffff;
+            z-index: 999999999;
         }
     </style>
 </head>
@@ -40,7 +44,7 @@
         <div class="top-navbar">
             <ul id="ul-nav">
                 <li>
-                    <span href="" id="btn-a-1" style="width:110px;display: block;opacity: 1;">
+                    <span href="" id="btn-a-1" style="width:72px;display: block;opacity: 1;">
                         <div class="dg_btn"  id="btn-1">订购VIP</div>
                     </span>
                 </li>
@@ -70,7 +74,7 @@
     var CarrierID=getUrlParam("CarrierID");
     // var flag = getUrlParam("flag") !=undefined&&getUrlParam("flag")!=""? getUrlParam("flag") : true ;
     var flag = sessionStorage.getItem('flag') != null?sessionStorage.setItem('flag', 1) : sessionStorage.setItem('flag', 0)
-    var orderurl="http://202.99.114.74:57301/epg/order.html?UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+rep(window.location.href,true)+"&ReturnErrorUrl="+rep(window.location.href,true);
+    var orderurl="http://202.99.114.74:57301/sdepg/order.html?UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+rep(window.location.href,true)+"&ReturnErrorUrl="+rep(window.location.href,true);
     //
     // log({
     //     mod:"test",
@@ -80,7 +84,6 @@
     /* 
         开屏js
     */  
-    console.log(getUrlParam("ReturnInfo"))
     flag = sessionStorage.getItem('flag') == 0 ? setTimeout(function () {$('#show').className+=" yinCang";},2000) : $('#show').className+=" yinCang";
     $("#btn-a-1").setAttribute("href",orderurl);
     function getUrlParam(name) {
@@ -108,20 +111,20 @@
     function selectInfo(tab_id,page){
         contentarr=[];
         changarr=[];
-        $("#center").innerHTML="<div class=\"column\"style=\"margin-left:89px;\">\n" +
+        $("#center").innerHTML="<div class=\"column\"style=\"margin-left:37px;\">\n" +
             "            <!--固定模块，收藏，免费，最热-->\n" +
             "            <div class=\"small_square\" id=\"function-1\" >\n" +
-            "                <span id=\"function-a-1\" href=\"http://202.99.114.74:57301/epg/free_list.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlfreelist="+backurl+"\">\n" +
+            "                <span id=\"function-a-1\" href=\"http://202.99.114.74:57301/sdepg/free_list.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlfreelist="+backurl+"\">\n" +
             "                    <img src=\"images/mfsp.png\"  class=\"imgsmall_square\"/>\n" +
             "                </span>\n" +
             "            </div>\n" +
             "            <div class=\"small_square\" id=\"function-2\">\n" +
-            "                <span id=\"function-a-2\" href=\"http://202.99.114.74:57301/epg/fav.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlfav="+backurl+"\">\n" +
+            "                <span id=\"function-a-2\" href=\"http://202.99.114.74:57301/sdepg/fav.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlfav="+backurl+"\">\n" +
             "                    <img src=\"images/wdsc.png\" class=\"imgsmall_square\"/>\n" +
             "                </span>\n" +
             "            </div>\n" +
             "            <div class=\"small_square\" id=\"function-3\">\n" +
-            "                <span id=\"function-a-3\" href=\"http://202.99.114.74:57301/epg/history.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlhistory="+backurl+"\">\n" +
+            "                <span id=\"function-a-3\" href=\"http://202.99.114.74:57301/sdepg/history.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&backUrlhistory="+backurl+"\">\n" +
             "                    <img src=\"images/zjgk.png\" class=\"imgsmall_square\"/>\n" +
             "                </span>\n" +
             "            </div>\n" +
@@ -136,9 +139,7 @@
             },
             success: function(data) {
                         if(data.code==0){
-                            console.log(menuCurrentId)
                             data=data.datas;
-                            console.log(data)
                             totalCount=data.tab.length;
                             totalContentCount=data.content.length;
                             if (totalContentCount == 0) {
@@ -163,9 +164,9 @@
                             for (var i=0;i<data.content.length;i++){
                                 var href="";
                                 if(data.content[i].entity=="playlist"){
-                                    href="http://202.99.114.74:57301/epg/detail.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&cid="+data.content[i].id+"&backUrldetail="+backurl;
+                                    href="http://202.99.114.74:57301/sdepg/detail.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&cid="+data.content[i].id+"&backUrldetail="+backurl;
                                 }else{
-                                    href="http://202.99.114.74:57301/epg/list.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&tab_id="+data.content[i].id+"&backUrllist="+backurl;
+                                    href="http://202.99.114.74:57301/sdepg/list.html?uid="+uid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&tab_id="+data.content[i].id+"&backUrllist="+backurl;
                                 }
                                 data.content[i].href=href;
                                 data.content[i].num=i+1;
@@ -242,7 +243,7 @@
         if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
             fun_enter();
         if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 ) {
-          window.location.href="http://202.99.114.74:57301/epg/detainment.html?returnInfo="+rep(getUrlParam("ReturnInfo"),true)+"&jx="+rep(window.location.href,true);
+          window.location.href="http://202.99.114.74:57301/sdepg/detainment.html?returnInfo="+rep(getUrlParam("uid"),true)+"&jx="+rep(window.location.href,true) +"&to="+rep(getUrlParam("ReturnInfo"),true);
         }
           
     }   
@@ -265,7 +266,6 @@
                 left+=280;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
-            console.log(left)
             removeClass("kuang","content-"+contentCurrentId);
             var retsult1=changarr.indexOf(contentCurrentId-1);
             if(retsult1>=0){
@@ -314,7 +314,6 @@
                 left-=280;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
-            console.log(left)
             removeClass("kuang", "content-" + contentCurrentId);
             var retsult1=changarr.indexOf(contentCurrentId+1);
             if(retsult1>=0){
@@ -366,7 +365,6 @@
         }else if(currentType=="content"&&contentCurrentId<totalContentCount){
             removeClass("kuang","content-"+contentCurrentId);
             contentCurrentId=contentCurrentId+1;
-            console.log(contentCurrentId)
             document.getElementById("content-"+contentCurrentId).className+=" kuang";
         }
     }

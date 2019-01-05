@@ -9,7 +9,6 @@
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <script type="text/javascript" src="js/href.js"></script>
   <script type="text/javascript" src="js/ajax.js"></script>
-
 </head>
 
 <body>
@@ -18,7 +17,6 @@
 
   </div>
   <div class="introduction" id="introduction">
-
   </div>
   <div class="videolist" id="videolist">
 
@@ -59,12 +57,10 @@
                 uid:uid,
             },
             success:function(data){
-                
                 if(data.code==0){
                     data=data.datas;
                     totalContentCount=data.video.length;
                     isfav=data.playlist.isfav;
-                    console.log(data)
                     var text=isfav==1?"取消收藏":"收藏";
                     $("#img-1").innerHTML="<img src=\""+data.playlist.pic+"\"  class=\"try_img\" alt=\"\">";
 
@@ -122,7 +118,7 @@
         if (event.keyCode==13 || event.keyCode=="KEY_ENTER")//enter
             fun_enter();
         if (event.keyCode == 8 ||event.keyCode == 27 || event.keyCode == 70 )
-            window.location.href=backurl;
+           window.location.href=getUrlParam("backUrldetail")+"&ReturnInfo="+getUrlParam("ReturnInfo")+"&backUrlfav="+getUrlParam("backUrlfav")+"&backUrlhistory="+getUrlParam("backUrlhistory");
     }
 
     function fun_left(){
@@ -162,7 +158,6 @@
                 left-=277;
                 $("#videolist").setAttribute("style","left:"+left+"px;");
             }
-            console.log(left)
             removeClass("kuangd","content-"+contentCurrentId);
             contentCurrentId=contentCurrentId+1;
             document.getElementById("content-"+contentCurrentId).className+=" kuangd";
@@ -209,7 +204,7 @@
                     }
                 })
             }else{
-                window.location.href="http://202.99.114.74:57301/epg/order.html?UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+rep(window.location.href,true)+"&ReturnErrorUrl="+rep(window.location.href,true);
+                window.location.href="http://202.99.114.74:57301/sdepg/order.html?UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+rep(window.location.href,true)+"&ReturnErrorUrl="+rep(window.location.href,true);
             }
         }
         else if(currentType=="content"){
@@ -223,7 +218,6 @@
                     CarrierID:CarrierID,
                 },
                 success:function(data){
-
                     var productId=data.datas.productList[0].productId;
 
                     var cid=getUrlParam("cid");
@@ -232,9 +226,11 @@
                     var ReturnSuccessUrl=rep("http://202.99.114.74:57301/epg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href,"&","--")
                     var ReturnErrorUrl=rep(window.location.href,true);
                     if(data.code==0){
-                        window.location.href= "http://202.99.114.74:57301/epg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href;
+                        // window.location.href= "http://202.99.114.74:57301/sdepg/PlayerSD.html"
+                        window.location.href= "http://202.99.114.74:57301/sdepg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href;
                     }else{
-                        window.location.href= "http://202.99.114.74:57301/epg/order.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+ReturnSuccessUrl+"&ReturnErrorUrl="+ReturnErrorUrl;
+                        // window.location.href= "http://202.99.114.74:57301/sdepg/PlayerSD.html"
+                        window.location.href= "http://202.99.114.74:57301/sdepg/order.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+ReturnSuccessUrl+"&ReturnErrorUrl="+ReturnErrorUrl;
                     }
                 },
 
