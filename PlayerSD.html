@@ -1,12 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="page-view-size" content="640*530">
 	<meta http-equiv="pragma" content="no-cache">
 	<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 	<meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
+	<script type="" src="js/ajax.js"></script>
+    <script type="" src="js/href.js"></script>
 	<title>视频播放</title>
 	<style type="text/css">
 		#div_control {
@@ -17,7 +18,6 @@
 			left: 243px;
 			opacity: 0.8;
 			background-color: rgba(0, 0, 0, 0.507);
-			/* visibility: visible; */
 			display: block;
 		}
 
@@ -28,9 +28,8 @@
 			top: 146px;
 			left: 155px;
 			opacity: 0.9;
-			/* visibility: hidden; */
 			display: none;
-			background-image: url(http://202.99.114.74:57115/file/image/back_bg.png);
+			background-image: url(/sdepg/images/videoImg/back_bg.png)
 		}
 
 		#div_progress {
@@ -39,9 +38,8 @@
 			height: 101px;
 			left: 0;
 			top: 429px;
-			/* visibility: visible; */
 			display: block;
-			background-image: url(http://202.99.114.74:57115/file/image/progress_bg.png);
+			background-image: url(/sdepg/images/videoImg/progress_bg.png);
 		}
 	</style>
 
@@ -51,7 +49,7 @@
 	<div id="div_control" style="display: none;">
 		<!-- 播放暂停 -->
 		<div id="div_btn_playOrPause" style="position:absolute;width:117px;height:117px;left:38px;top:35px;">
-			<img alt="btn_playOrPause" id="btn_playOrPause" src="http://202.99.114.74:57115/file/image/play_focus.png" />
+			<img alt="btn_playOrPause" id="btn_playOrPause" src="/sdepg/images/videoImg/play_focus.png" />
 		</div>
 	</div>
 	<div id="game_name" style="position: absolute; left: 0px;top: 439px; font-size: 10px; color: white;z-index: 99;text-align: center;width: 640px;">
@@ -63,10 +61,10 @@
 			00:00:00
 		</div>
 		<div id="progress" style="position:absolute;top:58px;left:60px;z-index:99;">
-			<img alt="pregress_img" id="progress_img" src="http://202.99.114.74:57115/file/image/progress.png" width="0" height="15" />
+			<img alt="pregress_img" id="progress_img" src="/sdepg/images/videoImg/progress.png" width="0" height="15" />
 		</div>
 		<div id="progress_point" style="position:absolute;top:58px;left:55px;z-index:99;">
-			<img alt="progress_point_img" id="progress_point_img" src="http://202.99.114.74:57115/file/image/progress_point.png"
+			<img alt="progress_point_img" id="progress_point_img" src="/sdepg/images/videoImg/progress_point.png"
 			 width="14" height="14">
 		</div>
 		<div id="total_time" style="position:absolute;top:50px;left:580px; width:60px;height:30px;text-align:center;z-index:99;font-size: 10px;color:#ffffff;">
@@ -77,16 +75,15 @@
 	<!-- 返回弹窗 -->
 	<div id="div_back" style="display: none;">
 		<div id="div_btn_continue" style="position:absolute;width:138px;height:42px;left:15px;top:140px;">
-			<img alt="btn_continue" id="btn_continue" src="http://202.99.114.74:57115/file/image/btn_continue.png" width="138"
+			<img alt="btn_continue" id="btn_continue" src="/sdepg/images/videoImg/btn_continue.png" width="138"
 			 height="42" />
 		</div>
 		<div id="div_btn_quit" style="position:absolute;width:138px;height:42px;left:169px;top:140px;">
-			<img alt="btn_quit" id="btn_quit" src="http://202.99.114.74:57115/file/image/btn_quit.png" width="138" height="42" />
+			<img alt="btn_quit" id="btn_quit" src="/sdepg/images/videoImg/btn_quit.png" width="138" height="42" />
 		</div>
 	</div>
 
 </body>
-<!-- <script type="text/javascript" src="http://202.99.114.74:57115/js/ajax.js"></script> -->
 <script type="text/javascript">
 	function getParameterByName(name) {
 		var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -390,8 +387,8 @@
 			showDiv('div_back');
 			hasWindow = true;
 			currentBtn = "btn_continue";
-			$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue_over.png";
-			$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit.png";
+			$('btn_continue').src = "/sdepg/images/videoImg/btn_continue_over.png";
+			$('btn_quit').src = "/sdepg/images/videoImg/btn_quit.png";
 			//Epg.Button.set('btn_continue');
 			playStat = 'play';
 			_playOrPause();
@@ -477,13 +474,13 @@
 					fastRewind_fun();
 				} else {
 					if (currentBtn === "btn_quit") {
-						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue_over.png";
-						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit.png";
+						$('btn_continue').src = "/sdepg/images/videoImg/btn_continue_over.png";
+						$('btn_quit').src = "/sdepg/images/videoImg/btn_quit.png";
 						currentBtn = "btn_continue";
 
 					} else {
-						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue.png";
-						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit_over.png";
+						$('btn_continue').src = "/sdepg/images/videoImg/btn_continue.png";
+						$('btn_quit').src = "/sdepg/images/videoImg/btn_quit_over.png";
 						currentBtn = "btn_quit";
 					}
 				}
@@ -493,12 +490,12 @@
 					fastForward_fun();
 				} else {
 					if (currentBtn === "btn_continue") {
-						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue.png";
-						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit_over.png";
+						$('btn_continue').src = "/sdepg/images/videoImg/btn_continue.png";
+						$('btn_quit').src = "/sdepg/images/videoImg/btn_quit_over.png";
 						currentBtn = "btn_quit";
 					} else {
-						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue_over.png";
-						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit.png";
+						$('btn_continue').src = "/sdepg/images/videoImg/btn_continue_over.png";
+						$('btn_quit').src = "/sdepg/images/videoImg/btn_quit.png";
 						currentBtn = "btn_continue";
 					}
 				}
