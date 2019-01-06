@@ -118,8 +118,8 @@
     function fun_left(){
        if(currentType=="content" && contentCurrentId!=1 ){
            var innum= contentCurrentId-1;
-           if (innum>2&&left<0){
-               left+=277;
+           if (innum>1&&left<0){
+               left+=280;
                $("#videolist").setAttribute("style","left:"+left+"px;");
            }
             removeClass("kuangd","content-"+contentCurrentId);
@@ -130,8 +130,8 @@
     function fun_right(){
         if( currentType=="content" && contentCurrentId<totalContentCount ){
             var innum=  contentCurrentId-1;
-            if (innum>=2&&left>-((totalContentCount-3)*277)){
-                left-=277;
+            if (innum>=1&&left>-((totalContentCount-2)*280)){
+                left-=280;
                 $("#videolist").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuangd","content-"+contentCurrentId);

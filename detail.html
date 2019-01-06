@@ -134,8 +134,8 @@
         }
         else if(currentType=="content" && contentCurrentId!=1 ){
             var innum= contentCurrentId-1;
-            if (innum>2&&left<0){
-                left+=277;
+            if (innum>1&&left<0){
+                left+=210;
                 $("#videolist").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuangd","content-"+contentCurrentId);
@@ -154,8 +154,8 @@
             document.getElementById("btn-"+btnCurrentId).className+=" kuang2";
         }else if( currentType=="content" && contentCurrentId<totalContentCount ){
             var innum=  contentCurrentId-1;
-            if (innum>=2&&left>-((totalContentCount-3)*277)){
-                left-=277;
+            if (innum>=1&&left>-((totalContentCount-3)*210)){
+                left-=210;
                 $("#videolist").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuangd","content-"+contentCurrentId);
@@ -226,14 +226,11 @@
                     var ReturnSuccessUrl=rep("http://202.99.114.74:57301/epg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href,"&","--")
                     var ReturnErrorUrl=rep(window.location.href,true);
                     if(data.code==0){
-                        // window.location.href= "http://202.99.114.74:57301/sdepg/PlayerSD.html"
                         window.location.href= "http://202.99.114.74:57301/sdepg/video.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&backUrlvideo="+window.location.href;
                     }else{
-                        // window.location.href= "http://202.99.114.74:57301/sdepg/PlayerSD.html"
                         window.location.href= "http://202.99.114.74:57301/sdepg/order.html?cid="+cid+"&uid="+uid+"&vid="+vid+"&UserID="+UserID+"&CarrierID="+CarrierID+"&UserToken="+UserToken+"&ReturnSuccessUrl="+ReturnSuccessUrl+"&ReturnErrorUrl="+ReturnErrorUrl;
                     }
                 },
-
                 async: false,
             })
 

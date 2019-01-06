@@ -209,8 +209,8 @@
     function fun_left(){
         if(currentType=="content" && contentCurrentId!=1 &&contentCurrentId!=2 ){
             var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
-            if (innum>3&&left<0){
-                left+=280;
+            if (innum>2&&left<0){
+                left+=210;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuang","content-"+contentCurrentId);
@@ -231,8 +231,8 @@
     function fun_right(){
         if( currentType=="content" && contentCurrentId<totalContentCount ){
             var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
-            if (innum>=3&&left>-((contentarr.length-4)*280)){
-                left-=280;
+            if (innum>=2&&left>-((contentarr.length-3)*210)){
+                left-=210;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuang","content-"+contentCurrentId);

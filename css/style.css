@@ -31,7 +31,7 @@ html body {
 }
 .wp .top-navbar{
     position:absolute;
-    font-size:24px;
+    font-size:15px;
     color:#fff;
     top:32px;
     left:109px;
@@ -63,7 +63,7 @@ html body {
 }
 .wp .top-navbar ul li {
     float:left;
-    margin-right:9px;
+    margin-right:7px;
     position: relative;
     /*width:10px;*/
 }

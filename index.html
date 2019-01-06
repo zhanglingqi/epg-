@@ -262,8 +262,8 @@
             document.getElementById("btn-1").className+=" dg_btn_on";
         }else if(currentType=="content" && contentCurrentId!=1 ){
             var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
-            if (innum>2&&left<0){
-                left+=280;
+            if (innum>1&&left<0){
+                left+=210;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuang","content-"+contentCurrentId);
@@ -310,8 +310,8 @@
         else if( currentType=="content" && contentCurrentId<totalContentCount ) {
             var innum=contentarr.indexOf(contentCurrentId)>=0?contentarr.indexOf(contentCurrentId):contentarr.indexOf(contentCurrentId-1);
 
-            if (innum>=2&&left>-((contentarr.length-3)*280)){
-                left-=280;
+            if (innum>=1&&left>-((contentarr.length-2)*210)){
+                left-=210;
                 $("#center").setAttribute("style","left:"+left+"px;");
             }
             removeClass("kuang", "content-" + contentCurrentId);
