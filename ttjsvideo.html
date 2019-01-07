@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<title>视频播放页面</title>
+<html lang="zh">
+
+<head>
+    <style>
+        /*遥控器提示文字*/
+div{
+	position:absolute;
+}
+div.ykq_tip
+{
+	position:absolute;
+	left: 90px;
+	top: 260px;
+	width: 400px;
+	height: 140px;
+	line-height: 140px;
+	text-align: center;
+	font-size: 80px;
+	color: rgb(245, 255, 6);
+	visibility: hidden;
+	z-index: 1000;
+	background-repeat: no-repeat;
+}
+/*底部菜单*/
+	div#menu{left:0px;top:457px;}
+	/*视频名称*/
+	div#video_name_div{left:0px;top:0px;overflow:hidden;font-size:22px;width:1280px;height:720px;background-image: url('http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/top.png')}
+	#video_name{left:20px;top:20px;font-size:23px;color: white;}
+	/*时间信息*/
+	div#time_info{left: 590px;top: 478px;font-size: 22px;color: white; width:182px;overflow: hidden;}
+	/*菜单按钮文字*/
+	div.menu_btn_txt{top: 130px;width: 140px;height: 33px;line-height: 33px;color: white;text-align: center;font-size: 28px;}
+	div.default_tip
+	{    
+		position:absolute;
+		left: 130px;
+		top: 125px;
+		width: 200px;
+		height: 70px;
+		line-height: 70px;
+		text-align: center;
+		font-size: 30px;
+		color: yellow;
+		visibility: hidden;
+		z-index: 1000;
+		background-repeat: no-repeat;
+	}
+</style>
+    <meta name="page-view-size" content="640*530" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+
+    <title>播放器false</title>
+</head>
+
+<body bgcolor="transparent" onunload="Epg.Mp.destroy();">
+
+    <script type="text/javascript" src="static/js/other.js"> </script>
+    <script type="text/javascript">
+        var progress_width = parseInt(''), //进度条宽度
+            menu_point_width = parseInt('45'), //进度条点的宽度
+            progress_left = parseInt('0'); //进度条left
+
+        var p = Epg.getParent(); //父页面
+        var menu_timer = undefined; //setTimeout返回的东西
+        var menu_is_show = false; //标记底部菜单是否显示
+        var play_end = false; //是否已经播放结束
+        var before_hide_btn_id = 'btn_4'; //在菜单隐藏之前的按钮ID
+        var auto_hide_menu_time = 10 * 1000; //自动隐藏菜单的时间，单位毫秒
+
+        var buttons = [{
+                id: 'fav',
+                action: fav,
+                right: 'btn_1',
+                focusImage: 'fav_focu.png'
+            },
+
+            {
+                id: 'btn_1',
+                name: '底部菜单按钮_1',
+                eager: true,
+                action: btnAction,
+                beforeMove: hideMenuAuto,
+                focusImage: 'menu_1_focus.png',
+                left: ['btn_0', 'fav'],
+                right: ['btn_2', 'btn_3'],
+                up: ''
+            },
+
+            {
+                id: 'btn_2',
+                name: '底部菜单按钮_2',
+                eager: true,
+                action: btnAction,
+                beforeMove: hideMenuAuto,
+                focusImage: 'menu_2_focus.png',
+                left: ['btn_1', 'fav'],
+                right: ['btn_3', 'btn_4'],
+                up: ''
+            },
+
+            {
+                id: 'btn_3',
+                name: '底部菜单按钮_3',
+                eager: true,
+                action: btnAction,
+                beforeMove: hideMenuAuto,
+                focusImage: 'menu_3_focus.png',
+                left: ['btn_2', 'fav'],
+                right: ['btn_4', 'btn_5'],
+                up: ''
+            },
+
+            {
+                id: 'menu_default',
+                name: '菜单隐藏时的默认按钮',
+                action: 'showAndHideMenuAuto()',
+                focusImage: '',
+                beforeMove: 'showAndHideMenuAuto()'
+            }
+        ];
+        //ajax收藏与取消
+        function fav() {
+
+        }
+        //底部菜单按钮的动作
+        function btnAction(current) {
+            switch (current.id) {
+                case 'btn_1':
+                    pageUp();
+                    break; //上一集
+                case 'btn_2':
+                    playOrPause();
+                    break; //暂停或播放
+                case 'btn_3':
+                    pageDown();
+                    break; //下一集
+            }
+        }
+        //上一集
+        function pageUp(vodMode) {
+            Epg.Mp.fastRewind();
+            /**if(''==='true'){
+            	if(''==='true'&&p.idx<=1 && play_mode=='listCycleOnce')
+            	{
+            		Epg.tip('已经是第一集了！');
+            		return;
+            	}
+            	window.vodMode = vodMode||'active';//机顶盒上setTimeout内部所有变量必须是全局的	
+            	p.location.href='http://202.99.114.28:19001/ttjs-web/ttjs/media_player.jsp?method=playPrev&mp='+p.mpid+'&vodMode='+window.vodMode;
+            }else{
+            	   window.vodMode = vodMode||'active';//机顶盒上setTimeout内部所有变量必须是全局的	
+            	   p.location.href='http://202.99.114.28:19001/ttjs-web/ttjs/media_player.jsp?method=playPrev&mp='+p.mpid+'&vodMode='+window.vodMode;
+            }**/
+        }
+
+        //下一集，force表示强制下一集
+        function pageDown(vodMode, force) {
+            Epg.Mp.fastForward();
+            /**if(''==='true'){
+				if(!force&&''==='true'&&p.idx>=p.total && play_mode=='listCycleOnce')
+				{
+					Epg.tip('已经是最后一集了！');
+					return;
+				}
+				window.vodMode = vodMode||'active';//机顶盒上setTimeout内部所有变量必须是全局的
+				p.location.href='http://202.99.114.28:19001/ttjs-web/ttjs/media_player.jsp?method=play&mp='+p.mpid+'&vodMode='+window.vodMode;	
+            }else{
+				   window.vodMode = vodMode||'active';//机顶盒上setTimeout内部所有变量必须是全局的	
+				   p.location.href='http://202.99.114.28:19001/ttjs-web/ttjs/media_player.jsp?method=play&mp='+p.mpid+'&vodMode='+window.vodMode;
+			}**/
+        }
+
+        //真正的退出播放页面
+        function exit() {
+            Epg.tip('返回');
+            location.href =
+                'http://202.99.114.28:19001/ttjs-web/ttjs/category/other_category_sd.jsp?1=1&code=shoushen&dir=back&p=1&f=recom0';
+        }
+
+        //播放或暂停
+        function playOrPause() {
+
+            //location.href = 'http://202.99.114.28:19001/ttjs-web/ttjs/category/other_category_sd.jsp?1=1&code=shoushen&dir=back&p=1&f=recom0';
+            Epg.Mp.playOrPause(function (state) {
+                changePlayBtnState(state);
+                showAndHideMenuAuto('btn_2'); //主动把菜单显示出来，同时刷新焦点图
+            });
+
+        }
+
+        //显示底部菜单，默认光标在上次隐藏之前的按钮，如果传了id，就显示id按钮
+        function showMenu(id) {
+            S('menu');
+            menu_is_show = true;
+            if (id !== undefined)
+                before_hide_btn_id = id;
+            if (before_hide_btn_id === 'menu_default') //防止出现没有光标
+                before_hide_btn_id = 'btn_2'; //没有光标时光标默认在中间的“播放”按钮上面
+            if (before_hide_btn_id)
+                epg.btn.set(before_hide_btn_id); //设置上次隐藏之前的按钮
+        }
+
+        //隐藏底部菜单
+        function hideMenu() {
+            H('menu');
+            menu_is_show = false;
+            before_hide_btn_id = epg.btn.current.id;
+            epg.btn.set('menu_default');
+
+        }
+
+        //定时自动隐藏菜单
+        function hideMenuAuto(dir) {
+            if (menu_timer)
+                clearTimeout(menu_timer);
+            menu_timer = setTimeout(function () {
+                if (p.epg.mp.speed == 1) //注意快进、快退时菜单不隐藏
+                    hideMenu();
+            }, auto_hide_menu_time); //5秒钟后自动隐藏
+        }
+
+        //显示并且自动隐藏底部菜单
+        function showAndHideMenuAuto(id) {
+            showMenu(id);
+            hideMenuAuto();
+            return false; //这里是配合menu_default按钮的beforeMove方法
+        }
+
+        //更改播放按钮的状态
+        function changePlayBtnState(state) {
+            if (state === 'play') //如果当前状态是播放
+            {
+                var btn = epg.btn.get('btn_2'); //中间的播放按钮
+                btn.linkImage = 'http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_pause.png';
+                btn.focusImage = 'http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_pause_focus.png';
+            } else if (state === 'pause') {
+                var btn = epg.btn.get('btn_2'); //中间的播放按钮
+                btn.linkImage = 'http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_play.png';
+                btn.focusImage = 'http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_play_focus.png';
+            }
+            G('btn_2').src = epg.btn.get('btn_2').linkImage; //更改播放按钮的默认图片
+            if (Epg.btn.current.id == 'btn_2') {
+                G('btn_2').src = epg.btn.get('btn_2').focusImage; //更改播放按钮的默认图片
+            }
+        }
+
+        //启动进度条
+        function startProgress() {
+            setTimeout(function () {
+                if (!p.mp) //照顾电脑上不报错
+                    return;
+                window.mp_progress_timer = setInterval(function () {
+                    var time_info = p.epg.mp.getPlayTimeInfo();
+                    G('time_info').innerHTML = time_info; //刷新底部时间rtsp
+                    //G('time_info').innerHTML = rtsp;//刷新底部时间rtsp
+                }, 1000); //每1秒钟进度条刷新一次
+            }, 1000); //一进入页面时视频可能还没初始化完毕	
+        };
+
+        //按返回按键的事件
+        function back() {
+            location.href =
+                'http://202.99.114.28:19001/ttjs-web/ttjs/category/other_category_sd.jsp?1=1&code=shoushen&dir=back&p=1&f=recom0';
+            //exit();
+        }
+
+        //视频播放结束后-退出
+        function afterVideoPlayEnd() {
+            exit();
+        }
+        //检查收藏按钮的状态
+        function checkFav() {
+            var config = {};
+            config.url = "http://202.99.114.28:19001/ttjs-web/ttjs/play/index.jsp?method=isFav&code=" + p.code;
+            config.contentType = 'application/json';
+            config.dataType = 'json';
+            config.success = function (a, b) {
+                    if (b.result == 'true') {
+                        //改变背景为已收藏
+                        G('fav_div').src = "http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/fav.png"
+                    } else {
+                        G('fav_div').src = "http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/fav2.png"
+                    }
+                },
+                config.error = function () {
+                    Epg.tip('收藏或者取消收藏失败');
+                }
+            Epg.ajax(config);
+        }
+
+        function enter() {
+            alert('test');
+        }
+        //设置按键映射
+        epg.key.init();
+        epg.key.set({
+            KEY_BACK2: 'back()',
+            KEY_PAGE_UP: 'pageUp()',
+            KEY_PAGE_DOWN: 'pageDown()',
+            KEY_PLAY_PAUSE: 'playOrPause()',
+            KEY_FAST_FORWARD: 'fastForward()',
+            KEY_FAST_REWIND: 'fastRewind()',
+            KEY_VOL_UP: 'Epg.Mp.volUp()',
+            KEY_VOL_DOWN: 'Epg.Mp.volDown()',
+            KEY_MUTE: 'Epg.Mp.toggleMuteFlag()',
+            KEY_TRACK: 'Epg.Mp.switchAudioChannel()',
+            EVENT_MEDIA_END: 'afterVideoPlayEnd()'
+        });
+        /**setTimeout(function()
+        {   
+        	if(true)
+        	{   var backURI=escape('http://202.99.114.28:19001/ttjs-web/ttjs/category/other_category_sd.jsp?1=1&code=shoushen&dir=back&p=1&f=recom0&dir=back');
+        	    location.href="http://202.99.114.28:19001/ttjs-web/ttjs/order/control.jsp?1=1&uri="+backURI;
+        	}
+        }, 1000);**/
+
+
+
+        //重写ykqTip方法
+        var rtsp = 'rtsp://202.99.114.93/88888891/16/20181026/270301215/270301215.ts';
+        //rtsp="rtsp://202.99.114.93/88888891/16/20181023/270296661/270296661.ts";
+        //rtsp= "rtsp://202.99.114.93/88888891/16/20180831/270244120/270244120.ts";
+        var playMode = 'fullscreen';
+        var name = "翘臀养成练习";
+        var code = "tt20180726101";
+        var menuWindow;
+        setTimeout(function () {
+            Epg.Mp.init(true); //true表示启用默认遥控器文字提示功能
+            if (playMode === 'fullscreen') { //如果是全屏
+                Epg.Mp.fullscreenPlay(rtsp);
+            } else if (playMode === 'smallvod') //如果是小视频
+            {
+                //这个地方需注意，由于后台MediaPlayer的坐标都是string类型，所以转json后也是，
+                //所以这里必须parseInt，否则在中兴上会出现小视频位置偏离的现象，update by lxa 20140610
+                Epg.Mp.smallvodPlay(rtsp, parseInt(), parseInt(), parseInt(), parseInt());
+            }
+        }, 500);
+
+        var play_mode = 'listCycleOnce'; //播放模式，默认顺序播放
+        window.onload = function () {
+            p.menuWindow = this; //这句话不可少！
+            epg.btn.init(['', 'btn_2'], buttons, 'http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/',
+                true);
+            changePlayBtnState('play');
+            hideMenuAuto(); //自动隐藏菜单
+            //startProgress();//开始进度条
+        };
+    </script>
+
+    <!-- 菜单隐藏时默认的按钮 -->
+    <div><img id="menu_default" src="" /></div>
+    <!-- 视频名称
+	<div id="video_name_div">
+	    <div id="video_name"></div>
+	</div>	 -->
+
+    <!-- 底部菜单 -->
+    <div id="menu">
+        <!-- 菜单背景，中兴标清上半透明会变成完全不透明，华为正常 -->
+        <div style="left:0px;top:0px;"><img src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_bg.png" /></div>
+
+
+
+        <!-- 时间信息 -->
+        <div id="time_info">00:00/00:00</div>
+        <!-- <div>
+	    <img src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_point.png"/>
+	</div>
+	进度条上面的点
+	<div id="menu_point" style="left:-22.5px;top:-22.0px;">
+		<img src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_point.png"/>
+	</div>
+	<div style="position:absolute;left:355px;top:20px;">
+			<img id="fav_div" src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/fav.png"/>
+	</div>
+	<div style="position:absolute;left:355px;top:20px;">
+			<img id="fav" src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/fav.png"/>
+	</div> -->
+        <!-- 遍历循环底部菜单按钮 -->
+
+
+        <div style="left:181px;top:16px;">
+            <img id="btn_1" src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_1.png" />
+        </div>
+
+
+
+
+
+        <div style="left:261px;top:6px;">
+            <img id="btn_2" src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_play.png" />
+        </div>
+
+
+
+        <div style="left:341px;top:16px;">
+            <img id="btn_3" src="http://202.99.114.28:19001/ttjs-web/ttjs/static/images/mp/sd/menu_3.png" />
+        </div>
+
+
+
+    </div>
+
+    <div id="default_tip" class="default_tip" style="background-image:url('http://202.99.114.28:9696/tqjy-epg/resources/hd/com/tip_bg.png');"></div>
+    <div id="ykq_tip" class="ykq_tip" style="background-image:url('http://202.99.114.28:9696/tqjy-epg/resources/hd/com/ykq_tip_bg.png')"></div>
+
+    <!-- 默认A标签 -->
+    <a id="default_link" href="#"><img src="" /></a>
+    <script type="text/javascript">
+        /**************************通用JS代码开始******************************/
+        (function () {
+            G('default_link').focus(); //聚焦默认的A标签
+            //记录访问日志
+            Epg.Log.access(
+                'null', //来源页面
+                '', //target和targetType必须有值才记录访问日志，所以不必担心页面重复记录
+                '', //当前页面类型
+                '', //当前页面的元素编码，只有少数页面需要记录这个，如二级栏目页面的关键字搜索
+                'null', //只有这个参数为'false'时才不记录日志，其它情况均记录，也就是说默认是记录日志的
+                'null', //当前页面属性编码
+                'null', //来源页面属性编码
+                'null', //来源页面类型，这个几乎都用不到
+                'null' || '' //来源页面元素编码，这个也几乎都用不到
+            );
+        })();
+    </script>
+
+</body>
+
+</html>

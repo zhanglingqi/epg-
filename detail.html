@@ -31,6 +31,7 @@
     var contentCurrentId=1;
     var btnCurrentId=1;
     var btnCount=3;			//栏目数
+    var favnum = 2;         // 收藏 订购 切换
     var totalContentCount=0;	//内容数
     var currentType="content";  //当前在content内容上 btn是订购按钮
     var left=0;
@@ -148,7 +149,7 @@
             removeClass("kuangi","img-1");
             currentType="btn";
             document.getElementById("btn-"+btnCurrentId).className+=" kuang2";
-        }else if(currentType=="btn"&& btnCurrentId<btnCount){
+        }else if(currentType=="btn"&& btnCurrentId<favnum){
             removeClass("kuang2","btn-"+btnCurrentId);
             btnCurrentId=btnCurrentId+1;
             document.getElementById("btn-"+btnCurrentId).className+=" kuang2";

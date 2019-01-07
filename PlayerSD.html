@@ -1,664 +1,723 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="page-view-size" content="640*530" />
-	<script type="" src="js/ajax.js"></script>
-    <script type="" src="js/href.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="page-view-size" content="640*530">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+	<meta http-equiv="expires" content="Wed, 26 Feb 1997 08:21:57 GMT">
 	<title>视频播放</title>
-	<script>
-		var playUrl = "";
-		var speed = 1;
-		var mediaStr = '[{mediaUrl:"' + playUrl + '",';
-		mediaStr += 'mediaCode: "jsoncode1",';
-		mediaStr += 'mediaType:2,';
-		mediaStr += 'audioType:1,';
-		mediaStr += 'videoType:1,';
-		mediaStr += 'streamType:1,';
-		mediaStr += 'drmType:1,';
-		mediaStr += 'fingerPrint:0,';
-		mediaStr += 'copyProtection:1,';
-		mediaStr += 'allowTrickmode:1,';
-		mediaStr += 'startTime:0,';
-		mediaStr += 'endTime:20000,';
-		mediaStr += 'entryID:"jsonentry1"}]';
-		var mp = new MediaPlayer();
-		// 获取视频相关信息
-        Ajax.get({
-            url: 'http://202.99.114.74:57301/api.php',
-            data: {
-                 mod:"h5",
-                 ac:"mp4",
-                 cid:getParameterByName("cid"),
-                 vid:getParameterByName("vid"),
-                 uid:getParameterByName("uid")
-            },
-            success: function(data) {
-                if(data.code==0){
-                    playUrl=data.datas.cdn;
-                    playUrl = playUrl.replace('http', 'rtsp');
-                }
-            },
-            async: false
-        })
-		/**
-		 *初始话mediaPlay对象
-		 */
-		function initMediaPlay() {
-			var instanceId = mp.getNativePlayerInstanceID(); //读取本地的媒体播放实例的标识
-
-			var playListFlag = 0; //Media Player 的播放模式。 0：单媒体的播放模式 (默认值)，1: 播放列表的播放模式
-			var videoDisplayMode = 1; //MediaPlayer 对象对应的视频窗口的显示模式. 1: 全屏显示2: 按宽度显示，3: 按高度显示
-
-			var height = 530;
-			var width = 640;
-			var left = 0;
-			var top = 0;
-
-			var muteFlag = 0; //0: 设置为有声 (默认值) 1: 设置为静音
-			var subtitleFlag = 0; //字幕显示 
-			var videoAlpha = 0; //视频的透明度
-
-			var cycleFlag = 1;
-			var randomFlag = 0;
-			var autoDelFlag = 0;
-			var useNativeUIFlag = 0;
-
-			//初始话mediaplayer对象
-			mp.initMediaPlayer(instanceId, playListFlag, videoDisplayMode, height, width, left, top, muteFlag, useNativeUIFlag,
-				subtitleFlag, videoAlpha, cycleFlag, randomFlag, autoDelFlag);
-
-			mp.setSingleMedia(mediaStr); //设置媒体播放器播放媒体内容
-			mp.setAllowTrickmodeFlag(0); //设置是否允许trick操作。 0:允许 1：不允许
-
-			mp.setNativeUIFlag(0); //播放器是否显示缺省的Native UI，  0:允许 1：不允许
-			mp.setAudioTrackUIFlag(1); //设置音轨的本地UI显示标志 0:不允许 1：允许
-
-			mp.setMuteUIFlag(1); //设置静音的本地UI显示标志 0:不允许 1：允许
-			mp.setAudioVolumeUIFlag(1); //设置音量调节本地UI的显示标志 0:不允许 1：允许
-			mp.refreshVideoDisplay();
+	<link rel="stylesheet" type="text/css" href="http://202.99.114.74:57115/css/common_sd.css">
+	<!-- <script type="text/javascript" src="http://202.99.114.74:57115/js/common.js"></script>
+	<script type="text/javascript" src="http://202.99.114.74:57115/js/klass.js"></script>
+	<script type="text/javascript" src="http://202.99.114.74:57115/js/playvideo.js"></script> -->
+	<style type="text/css">
+		#div_control {
+			position: absolute;
+			width: 153px;
+			height: 147px;
+			top: 191px;
+			left: 243px;
+			opacity: 0.8;
+			background-color: rgba(0, 0, 0, 0.507);
+			/* visibility: visible; */
+			display: block;
 		}
 
-		/**
-		 *播放 
-		 */
-		function play() {
-			mp.playFromStart();
+		#div_back {
+			position: absolute;
+			width: 324px;
+			height: 202px;
+			top: 146px;
+			left: 155px;
+			opacity: 0.9;
+			/* visibility: hidden; */
+			display: none;
+			background-image: url(http://202.99.114.74:57115/file/image/back_bg.png);
 		}
 
-		/**
-		 *进入页面后直接播放
-		 */
-		function start() {
-			initMediaPlay();
-			play();
+		#div_progress {
+			position: absolute;
+			width: 640px;
+			height: 101px;
+			left: 0;
+			top: 429px;
+			/* visibility: visible; */
+			display: block;
+			background-image: url(http://202.99.114.74:57115/file/image/progress_bg.png);
 		}
+	</style>
 
-		document.onirkeypress = keyEvent;
-		document.onkeypress = keyEvent;
-
-		function keyEvent() {
-			var val = event.which ? event.which : event.keyCode;
-			return keypress(val);
-		}
-
-		var volFlag = null;
-
-		function volumeUp() {
-			var volume = mp.getVolume();
-			if (volume >= 95) {
-				volume = 100;
-			} else {
-				volume += 5;
-			}
-			if (volFlag != null) {
-				clearTimeout(volFlag);
-			}
-
-			mp.setVolume(volume);
-			statusUpdateVolume();
-
-			closeShow();
-			showVolume('4');
-
-			volFlag = setTimeout("closeShowVolume()", 3000);
-		}
-
-		function volumeDown() {
-
-			var volume = mp.getVolume();
-			if (volume <= 5) {
-				volume = 0;
-			} else {
-				volume -= 5;
-			}
-			if (volFlag != null) {
-				clearTimeout(volFlag);
-			}
-			mp.setVolume(volume);
-
-			statusUpdateVolume();
-			closeShow();
-			showVolume('4');
-
-			closeShowVolumeTime = new Date().getTime() + 3000;
-			volFlag = setTimeout("closeShowVolume()", 3000);
-		}
-		//设置静音
-		function setMute() {
-			mp.setMuteUIFlag(1);
-			var tmp_flag = mp.getMuteFlag();
-			var mute_flag = (tmp_flag > 0) ? 0 : 1;
-			mp.setMuteFlag(mute_flag);
-
-			closeShow();
-			statusUpdateVolume();
-			if (tmp_flag > 0) { //(1-静音,0-默认声音)
-				showVolume('0');
-				closeShowVolume();
-			} else {
-				showVolume('1');
-			}
-		}
-
-		var keyCodeStatus = 0;
-
-		function keypress(keyval) {
-			//document.getElementById("show").innerHTML =keyval;
-
-			if (keyval == 768 || keyval == 0x300) {
-				goUtility();
-			} else if (keyval == 8 || keyval == 0x08 || keyval == 81 || keyval == 1249 || keyval == 640 || keyval == 113 ||
-				keyval == 24) {
-				stop();
-				returnUrl();
-			} else if (keyval == 264 || keyval == 0x108 || keyval == 39 || keyval == 0x27) {
-				playForward();
-			} else if (keyval == 265 || keyval == 0x109 || keyval == 37 || keyval == 0x25) {
-				playRewind();
-			} else if (keyval == 13 || keyval == 0xd) {
-				//if(speed > 1){
-				playResume();
-				//}
-			} else if (keyval == 38 || keyval == 0x26) {
-				play();
-			} else if (keyval == 259 || keyval == 0x0103) {
-				volumeUp();
-			} else if (keyval == 260 || keyval == 0x0104) {
-				volumeDown();
-			} else if (keyval == 261 || keyval == 0x0105) { //静音
-				setMute();
-			}
-		}
-
-		/**
-		 *跳转指定时间播放
-		 */
-		function byTime() {
-			mp.gotoEnd();
-		}
-
-		/**
-		 *播放暂停继续
-		 */
-		function playResume() {
-			if (keyCodeStatus == 1) {
-				keyCodeStatus = 2;
-				setTimeout("playResume()", 1000);
-				return false;
-			}
-			if (speed == 1) {
-				mp.pause();
-				speed = 0;
-				show("3");
-			} else {
-				mp.resume();
-				speed = 1;
-				hideSpeed();
-				show("4");
-			}
-		}
-
-		var sign = "rewind"; //判断当前是快进还是快退
-
-		var ftime = 0; //
-
-		var timestamp = new Date().getTime();
-		var jztype = 0;
-		/**
-		 *快进
-		 */
-		var seekFlag = null; //快进快退的定时器（按快进快退之后1秒执行）
-		var colseShowFlag = null; //隐藏显示条
-		var seekFlag = null; //跳转到指定时间的定时器
-		var frTime = new Date().getTime(); //记录快进/快退点击的时间
-		function playForward() {
-			if (speed == 0) {
-				speed = 1;
-			}
-			speed = speed * 2;
-			//document.getElementById("playForward").innerHTML =speed;
-			if (speed > 32) {
-				mp.resume();
-				speed = 1;
-				hideSpeed();
-			} else {
-				if (sign == "rewind") speed = 2;
-				mp.fastForward(speed);
-				changeSetaa("apDiv_next");
-			}
-			keyCodeStatus = 1;
-			var nTime = 0; //当前时间
-			var nowTime = mp.getCurrentPlayTime();
-
-			if (nowTime == null || nowTime == "") {
-				nTime = parseInt(0, 10);
-			} else {
-				nTime = parseInt(nowTime, 10);
-			}
-			if (ftime > nTime) {
-				nTime = ftime;
-			}
-			if (new Date().getTime() - frTime < 1000) { //
-				nTime = ftime;
-			}
-
-
-			nTime = nTime + 5;
-			//if ( nTime >= tTime) {
-			//	nTime = tTime-3; //避免快进到结束直接返回
-			//}
-
-
-			ftime = nTime;
-			statusUpdateProcessTime = new Date().getTime();
-
-			if (seekFlag != null) {
-				clearTimeout(seekFlag);
-			}
-			statusUpdateProcess();
-			seekFlag = setTimeout("seekToTime()", 1000);
-
-
-			closeShowVolume(); //隐藏声音条
-			show('1');
-
-			if (colseShowFlag != null) {
-				clearTimeout(colseShowFlag);
-			}
-
-			colseShowFlag = setTimeout("closeShow()", 3000);
-			sign = "forward";
-		}
-
-		/**
-		 *快退
-		 */
-		function playRewind() {
-			if (speed == 0) {
-				speed = 1;
-			}
-			speed = speed * 2;
-			if (speed > 32) {
-				mp.resume();
-				speed = 1;
-				hideSpeed();
-			} else {
-				if (sign == "forward") speed = 2;
-				mp.fastRewind(-speed);
-				changeSetaa("apDiv_prev");
-			}
-			keyCodeStatus = 1;
-			frTime = new Date().getTime();
-
-			var crrtime = parseInt(mp.getCurrentPlayTime()); //当前时间
-
-			if (ftime < crrtime && ftime > 0) {
-				crrtime = ftime;
-			} else if (ftime - crrtime > 5) {
-				crrtime = ftime;
-			}
-			if (new Date().getTime() - frTime < 1000) { //
-				crrtime = ftime;
-			}
-
-			var newtime = crrtime - 5;
-			if (newtime < 0) {
-				newtime = 0;
-			}
-			closeShowVolume(); //隐藏声音条
-			//statusUpdateProcess();
-			show('2');
-			ftime = newtime;
-			statusUpdateProcessTime = new Date().getTime();
-			//mp.playByTime(1,newtime,1);
-			if (seekFlag != null) {
-				clearTimeout(seekFlag);
-			}
-			statusUpdateProcess();
-			seekFlag = setTimeout("seekToTime()", 1000);
-			if (colseShowFlag != null) {
-				clearTimeout(colseShowFlag);
-			}
-			colseShowFlag = setTimeout("closeShow()", 4000);
-			sign = "rewind";
-		}
-
-		/**
-		 *机顶盒事件响应
-		 */
-		function goUtility() {
-			eval("eventJson = " + Utility.getEvent());
-			var typeStr = eventJson.type;
-			switch (typeStr) {
-				case "EVENT_MEDIA_ERROR":
-					mediaError(eventJson);
-					break;
-				case "EVENT_MEDIA_END":
-					stop();
-					returnUrl();
-					break;
-				case "EVENT_MEDIA_BEGINING":
-					hideSpeed();
-				default:
-					break;
-			}
-			return true;
-		}
-
-		/**
-		 *出现错误
-		 */
-		function mediaError(eventJson) {
-			var code = eventJson.error_code;
-			var type = eventJson.error_message;
-		}
-		/**
-		 *停止播放
-		 */
-		function stop() {
-			mp.stop();
-		}
-
-		stop();
-		start();
-
-		function getVale() {
-			var src = document.getElementById("pic").src;
-			var value = src.substring(src.length - 5, src.length - 4);
-			return value;
-		}
-
-		function returnUrl() {
-			window.location.href = window.location.search.split("&backUrlvideo=")[1];//返回url;
-		}
-
-		function selfFresh() {
-			window.location.reload();
-		}
-
-		function seekToTime() {
-			mp.playByTime(1, ftime);
-			setTimeout("changeKeyCodeStatus();", 1500);
-		}
-
-		function changeKeyCodeStatus() {
-			keyCodeStatus = 0;
-		}
-	</script>
 </head>
 
-<body onunload="stop();" style="margin:0;background-color:transparent;">
-	<!-- div id="show" style="POSITION: absolute; TOP: 40px; LEFT: 50px;color: red;font-weight: bold;">show</div -->
-	<!-- div id="playForward" style="POSITION: absolute; TOP: 40px; LEFT: 5px;">playForward</div -->
-	<div id="status_bj" style="POSITION:absolute;display:none;">
-		<img src="http://202.99.114.74:58104/k12//material/images/play_bj.png" style="width:640px;height:30px; " />
+<body>
+	<div id="div_control" style="display: none;">
+		<!-- 播放暂停 -->
+		<div id="div_btn_playOrPause" style="position:absolute;width:117px;height:117px;left:38px;top:35px;">
+			<img alt="btn_playOrPause" id="btn_playOrPause" src="http://202.99.114.74:57115/file/image/play_focus.png" />
+		</div>
 	</div>
-	<div id="playstatusdiv" class="showVolume"></div>
+	<div id="game_name" style="position: absolute; left: 0px;top: 439px; font-size: 10px; color: white;z-index: 99;text-align: center;width: 640px;">
+		<p></p>
+	</div>
+	<!-- 播放时间定位 -->
+	<div id="div_progress" style="width: 640px;display: none;">
+		<div id="curr_time" style="position:absolute;top:50px;left:1px; width:60px;height:30px;text-align:center;z-index:99;font-size: 10px;color:#ffffff;">
+			00:00:00
+		</div>
+		<div id="progress" style="position:absolute;top:58px;left:60px;z-index:99;">
+			<img alt="pregress_img" id="progress_img" src="http://202.99.114.74:57115/file/image/progress.png" width="0" height="15" />
+		</div>
+		<div id="progress_point" style="position:absolute;top:58px;left:55px;z-index:99;">
+			<img alt="progress_point_img" id="progress_point_img" src="http://202.99.114.74:57115/file/image/progress_point.png"
+			 width="14" height="14">
+		</div>
+		<div id="total_time" style="position:absolute;top:50px;left:580px; width:60px;height:30px;text-align:center;z-index:99;font-size: 10px;color:#ffffff;">
+			00:00:00
+		</div>
+	</div>
 
-	<!-- 操作显示 -->
-	<div id="status" style="POSITION:absolute;display:none;"></div>
-	<div id="status_process" style="POSITION:absolute;display:none;"></div>
-	<div id="status_text" style="POSITION:absolute;display:none"></div>
+	<!-- 返回弹窗 -->
+	<div id="div_back" style="display: none;">
+		<div id="div_btn_continue" style="position:absolute;width:138px;height:42px;left:15px;top:140px;">
+			<img alt="btn_continue" id="btn_continue" src="http://202.99.114.74:57115/file/image/btn_continue.png" width="138"
+			 height="42" />
+		</div>
+		<div id="div_btn_quit" style="position:absolute;width:138px;height:42px;left:169px;top:140px;">
+			<img alt="btn_quit" id="btn_quit" src="http://202.99.114.74:57115/file/image/btn_quit.png" width="138" height="42" />
+		</div>
+	</div>
 
-
-	<div id="status_v" style="POSITION:absolute;display:none;"></div>
-	<div id="status_process_v" style="POSITION:absolute;display:none;"></div>
-	<div id="status_text_v" style="POSITION:absolute;display:none;"></div>
-
-	<div id="status_fast" style="POSITION:absolute;display:none;"><img src="" id="img_div" /></div>
-	<script>
-		var statusWidth = 640;
-		var statusHeight = 30;
-		var statusX = 0;
-		var statusY = 510 - statusHeight;
-		var _status = document.getElementById("status");
-		var _status_process = document.getElementById("status_process");
-		var _status_forward = document.getElementById("status_forward");
-		var _status_back = document.getElementById("status_back");
-		var _status_pause = document.getElementById("status_pause");
-		var _status_text = document.getElementById("status_text");
-		var _status_fast = document.getElementById("status_fast");
-		var img_div = document.getElementById("img_div");
-		var _status_bj = document.getElementById("status_bj");
-		var _status_volume = document.getElementById("status_volume");
-
-		var _status_v = document.getElementById("status_v");
-		var _status_process_v = document.getElementById("status_process_v");
-		var _status_text_v = document.getElementById("status_text_v");
-
-
-		_status_bj.style.left = "0px";
-		_status_bj.style.top = statusY + "px";
-		_status_bj.style.width = statusWidth + "px";
-		_status_bj.style.height = statusHeight + "px";
-
-		_status.style.left = "0px";
-		_status.style.top = statusY + "px";
-		_status.style.width = statusWidth + "px";
-		_status.style.height = statusHeight + "px";
-		_status.style.backgroundColor = "#FFFFFF";
-
-		_status_process.style.left = "0px";
-		_status_process.style.top = statusY + "px";
-		_status_process.style.width = "10px";
-		_status_process.style.height = statusHeight + "px";
-		_status_process.style.backgroundColor = "#7056F6";
-
-
-		_status_text.style.left = "30px";
-		_status_text.style.top = (statusY + 1) + "px";
-		_status_text.style.width = "100px";
-		_status_text.style.height = "30px";
-
-
-		_status_v.style.left = "0px";
-		_status_v.style.top = statusY + "px";
-		_status_v.style.width = statusWidth + "px";
-		_status_v.style.height = statusHeight + "px";
-		_status_v.style.backgroundColor = "#FFFFFF";
-
-		_status_process_v.style.left = "0px";
-		_status_process_v.style.top = statusY + "px";
-		_status_process_v.style.width = "10px";
-		_status_process_v.style.height = statusHeight + "px";
-		_status_process_v.style.backgroundColor = "#00FF00";
-
-
-		_status_text_v.style.left = "30px";
-		_status_text_v.style.top = (statusY + 1) + "px";
-		_status_text_v.style.width = "150px";
-		_status_text_v.style.height = "30px";
-
-		_status_fast.style.left = "50px";
-		_status_fast.style.top = (statusY - 50) + "px";
-		_status_fast.style.width = "200px";
-		_status_fast.style.height = "100px";
-
-
-		img_div.style.width = '62px';
-		img_div.style.height = '40px';
-
-		var tTime = 1; //总时间
-		function getMediaDuration() {
-			try {
-				if (tTime == 1) {
-					var totalTime = mp.getMediaDuration();
-					if (totalTime == null || totalTime == "") {
-						return;
-					} else {
-						tTime = parseInt(totalTime, 10);
-					}
-				}
-			} catch (e) {}
-		}
-
-		//进度条
-		var statusUpdateProcessTime = 0;
-
-		function statusUpdateProcess() {
-			try {
-
-				getMediaDuration();
-				var all = tTime;
-				var curr = parseInt(mp.getCurrentPlayTime());
-
-				if (sign == "forward") {
-					if (ftime > curr) {
-						curr = ftime;
-					}
-
-				} else if (sign == "rewind") {
-					curr = ftime;
-				}
-
-				if (new Date().getTime() - frTime < 1000) { //
-					curr = ftime;
-				}
-
-
-
-				var per = (curr / all * 100);
-				_status_text.innerHTML = "<center><font color='#FFFFFF'>" + formatSeconds(curr) + "/" + formatSeconds(all) +
-					"</font></center>";
-				_status_process.style.width = (statusWidth * per / 100) + "px";
-
-			} catch (e) {
-				viewplaystatus("StatusUpdateProcess Error:" + e);
-			}
-		}
-		//更新进度条
-		var statusFlag = null;
-
-		function updateControl() {
-			statusFlag = setInterval("statusUpdateProcess()", 1000);
-		}
-
-		//音量条
-		function statusUpdateVolume() {
-			var all = 100;
-			var curr = mp.getVolume();
-			var per = (curr / all * 100);
-			//_status_text_v.innerHTML="<center><font color='#FFFFFF'>"+formatSeconds(curr)+"/"+formatSeconds(all)+"</font></center>";
-			_status_process_v.style.width = (statusWidth * per / 100) + "px";
-			setTimeout("statusUpdateVolume()", 1000);
-		}
-
-
-		//显示进度条
-		function show(value) {
-			_status_bj.style.display = '';
-			//_status.style.display='';
-			_status_process.style.display = '';
-			_status_text.style.display = '';
-
-			if (value == '1') { //快进
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_rewind.png';
-			} else if (value == '2') { //快退
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_forward.png';
-			} else if (value == '3') { //暂停
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_pause.png';
-			} else if (value == '4') { //播放
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_resume.png';
-			}
-			_status_fast.style.display = 'block';
-		}
-		//关闭进度条
-
-		function closeShow() {
-
-			_status_bj.style.display = 'none';
-			//_status.style.display='none';
-			_status_process.style.display = 'none';
-			_status_text.style.display = 'none';
-			_status_fast.style.display = 'none';
-
-		}
-		//显示音量
-
-		function showVolume(value) {
-
-			//静音/恢复不显示声音调
-			if (value == '3' || value == '4') {
-				_status_bj.style.display = '';
-				_status_process_v.style.display = '';
-				_status_text_v.style.display = '';
-			}
-			if (value == '1') { //静音
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_volume0.png';
-			} else if (value == '2') { //播放声音
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_volume.png';
-			} else if (value == '3') { //音量加
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_volume.png';
-			} else if (value == '4') { //音量减
-				img_div.src = 'http://202.99.114.74:58104/k12//material/images/v_volume.png';
-			}
-			_status_fast.style.display = '';
-
-		}
-		//关闭音量
-		function closeShowVolume() {
-
-			_status_bj.style.display = 'none';
-			//_status_v.style.display='none';
-			_status_process_v.style.display = 'none';
-			_status_text_v.style.display = 'none';
-			_status_fast.style.display = 'none';
-		}
-
-		function formatSeconds(value) {
-			var theTime = parseInt(value); // 秒
-			var theTime1 = 0; // 分
-			var theTime2 = 0; // 小时
-
-			if (theTime > 60) {
-				theTime1 = parseInt(theTime / 60);
-				theTime = parseInt(theTime % 60);
-				if (theTime1 > 60) {
-					theTime2 = parseInt(theTime1 / 60);
-					theTime1 = parseInt(theTime1 % 60);
-				}
-			}
-			var result = "";
-			if (theTime2 >= 10) {
-				result = theTime2 + ":";
-			} else {
-				result = "0" + theTime2 + ":";
-			}
-			if (theTime1 >= 10) {
-				result = result + theTime1 + ":";
-			} else {
-				result = result + "0" + theTime1 + ":";
-			}
-			if (theTime >= 10) {
-				result = result + theTime;
-			} else {
-				result = result + "0" + theTime + ":";
-			}
-			return result;
-		}
-	</script>
 </body>
+<!-- <script type="text/javascript" src="http://202.99.114.74:57115/js/ajax.js"></script> -->
+<script type="text/javascript">
+	function getParameterByName(name) {
+		var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+		return match && (match[1].replace(/\+/g, ' '));
+	}
+
+	function getSTBModel() {
+		var stbModel = '';
+		if (typeof (Authentication) == 'object') {
+			//此方法经测试目前可以获取到华为，中兴，创维三款机顶盒型号
+			stbModel = Authentication.CTCGetConfig('STBType');
+			if (!stbModel) {
+				stbModel = Authentication.CUGetConfig("STBType");
+			}
+			//烽火的机顶盒
+			if (!stbModel) {
+				stbModel = Authentication.CTCGetConfig("device.stbmodel");
+			}
+		}
+		//中兴老的盒子获取机顶盒型号的方法
+		if (!stbModel && typeof (ztebw) == 'object') {
+			stbModel = ztebw.ioctlRead("infoZTEHWType");
+			if (!stbModel) {
+				stbModel = ztebw.ioctlRead("infoHWProduct");
+			}
+		}
+		return stbModel;
+	}
+	var stbType = getSTBModel();
+	// var playUrl = getParameterByName('playUrl');
+	// playUrl = playUrl.replace('http', 'rtsp'); //换一下协议，有部分盒子http有问题
+	var isSmallWindow = getParameterByName('isSmallWindow');
+	var windowArea = getParameterByName('windowArea');
+	var backUrl = window.location.search.split("&returnUrl=")[1];
+	var nowUrl = window.location.href;
+	//document.getElementById("a_back").href = backUrl;
+	var playUrl = "rtsp://202.99.114.74:57301/sd/2.ts";
+	var mediaStr = '[{mediaUrl:"' + playUrl + '",';
+	mediaStr += 'mediaCode: "jsoncode1",';
+	mediaStr += 'mediaType:2,';
+	mediaStr += 'audioType:1,';
+	mediaStr += 'videoType:1,';
+	mediaStr += 'streamType:1,';
+	mediaStr += 'drmType:1,';
+	mediaStr += 'fingerPrint:0,';
+	mediaStr += 'copyProtection:1,';
+	mediaStr += 'allowTrickmode:1,';
+	mediaStr += 'startTime:0,';
+	mediaStr += 'endTime:20000,';
+	mediaStr += 'entryID:"jsonentry1"}]';
+	//是否有返回弹窗。
+	var hasWindow = false;
+	//菜单显示时间
+	var isEnds;
+	var isfast;
+	var time = 5000;
+	var timer1;
+	var timer2;
+	var timer3;
+	var height = 530;
+	var width = 640;
+	var left = 1;
+	var top = 31;
+	var timeFlag = 15; //快进/快退时间间隔
+	var speed = 1;
+	var playStat = "play";
+	var mp;
+	var instanceId;
+	if (typeof MediaPlayer !== "undefined") {
+		mp = new MediaPlayer();
+	}
+
+	function stopVideo() {
+		try {
+			if (mp != null) {
+				mp.stop();
+				//mp.releaseMediaPlayer(instanceId);
+			}
+		} catch (e) {}
+	}
+
+	/**
+	 *初始话mediaPlay对象
+	 */
+	function initMediaPlay() {
+		instanceId = mp.getNativePlayerInstanceID(); //读取本地的媒体播放实例的标识
+
+
+		var height = 530;
+		var width = 640;
+		var left = 0;
+		var top = 0;
+		var playListFlag = 0; //Media Player 的播放模式。 0：单媒体的播放模式 (默认值)，1: 播放列表的播放模式
+		var videoDisplayMode = 1; //MediaPlayer 对象对应的视频窗口的显示模式. 1: 全屏显示2: 按宽度显示，3: 按高度显示
+		if (isSmallWindow == "smallScreen") {
+			height = 157; //435,85,188,154
+			width = 217;
+			left = 218;
+			top = 123;
+			videoDisplayMode = 0;
+		}
+		var muteFlag = 0; //0: 设置为有声 (默认值) 1: 设置为静音
+		var subtitleFlag = 0; //字幕显示
+		var videoAlpha = 0; //视频的透明度
+
+		var cycleFlag = 1;
+		var randomFlag = 0;
+		var autoDelFlag = 0;
+		var useNativeUIFlag = 0;
+
+		//初始话mediaplayer对象
+		mp.initMediaPlayer(instanceId, playListFlag, videoDisplayMode, height, width, left, top, muteFlag, useNativeUIFlag,
+			subtitleFlag, videoAlpha, cycleFlag, randomFlag, autoDelFlag);
+
+		mp.setSingleMedia(mediaStr); //设置媒体播放器播放媒体内容
+		mp.setAllowTrickmodeFlag(0); //设置是否允许trick操作。 0:允许 1：不允许
+
+		mp.setNativeUIFlag(0); //播放器是否显示缺省的Native UI，  0:允许 1：不允许
+		mp.setAudioTrackUIFlag(1); //设置音轨的本地UI显示标志 0:不允许 1：允许
+
+		mp.setMuteUIFlag(1); //设置静音的本地UI显示标志 0:不允许 1：允许
+		mp.setAudioVolumeUIFlag(1); //设置音量调节本地UI的显示标志 0:不允许 1：允许
+		mp.refreshVideoDisplay();
+	}
+
+	/**
+	 *播放
+	 */
+	function play() {
+		mp.playFromStart();
+	}
+
+	/**
+	 *进入页面后直接播放
+	 */
+	function start() {
+		initMediaPlay();
+		play();
+	}
+
+	var volFlag = null;
+
+	function volumeUp() {
+		var volume = mp.getVolume();
+		if (volume >= 95) {
+			volume = 100;
+		} else {
+			volume += 5;
+		}
+		mp.setVolume(volume);
+	}
+
+	function volumeDown() {
+		var volume = mp.getVolume();
+		if (volume <= 5) {
+			volume = 0;
+		} else {
+			volume -= 5;
+		}
+		mp.setVolume(volume);
+	}
+
+	function setMute() {
+		mp.setMuteUIFlag(1);
+		var tmp_flag = mp.getMuteFlag();
+		var mute_flag = (tmp_flag > 0) ? 0 : 1;
+		mp.setMuteFlag(mute_flag);
+	}
+
+
+	/**
+	 * 播放/暂停
+	 */
+	function _playOrPause() {
+		if (playStat === "play") {
+			playStat = 'pause';
+			if (isfast == "fast") {
+				isfast = "";
+				mp.resume();
+			} else {
+				showDiv('div_control');
+				mp.pause();
+			}
+			//timer1 = setTimeout("showDiv('div_control')", 1);
+		} else {
+			playStat = 'play';
+			mp.resume();
+			timer1 = setTimeout("hideDiv('div_control')", 1);
+			timer1 = setTimeout("hideDiv('game_name')", 1);
+		}
+	}
+
+
+	/*
+	 * 继续观看
+	 */
+
+	function _continue() {
+		hideDiv('div_back');
+		hasWindow = false;
+		var tmpcurrenttime = parseInt("" + mp.getCurrentPlayTime());
+		var tmpduration = parseInt("" + mp.getMediaDuration());
+		timer2 = setTimeout("hideDiv('div_progress');", time);
+		_playOrPause();
+	}
+
+	/*
+	 * 退出
+	 */
+	function _quit() {
+		stopVideo();
+		console.log(backUrl);
+
+		window.location.href = backUrl;
+	}
+
+	function destoryMP() {
+		if (mp) {
+			stopVideo();
+		}
+	}
+
+	//播放或暂停
+	function _playOrPause_fun() {
+		if (!hasWindow) {
+
+			//Epg.Button.set('btn_playOrPause');
+			clearTimeout(timer1);
+
+			_playOrPause();
+		}
+	}
+
+	//快进
+	function fastForward_fun() {
+		if (!hasWindow) {
+			isfast = "fast";
+			showDiv('div_progress');
+			clearTimeout(timer2);
+			timer2 = setTimeout("hideDiv('div_progress')", time);
+			fastForward();
+		}
+	}
+
+	//快退
+	function fastRewind_fun() {
+		if (!hasWindow) {
+			isfast = "fast";
+			showDiv('div_progress');
+			clearTimeout(timer2);
+			timer2 = setTimeout("hideDiv('div_progress')", time);
+			fastRewind();
+		}
+	}
+
+
+	function timeFormat(second) {
+		var m = Math.floor(second / 60);
+		m = m < 10 ? ('0' + m) : m;
+		var s = second % 60;
+		s = s < 10 ? ('0' + s) : s;
+		return m + ':' + s;
+	}
+
+	//填充视频播放的当前时间和总时间
+	if (stbType) {
+		var playTimer = setInterval('setPlayTime()', 1000);
+	}
+
+
+	function setPlayTime() {
+		var t1 = getCurrentTime();
+		var t2 = getTotalTime();
+		// if ((t1 >= t2) && (t1 !== 0) && (t2 !== 0)) { //播放完就播放下一个课时
+		// 	currentBtn === "btn_continue";
+		// 	isEnds == "end";
+		// 	showBackDialog();
+		// 	hideDiv('div_control');
+		// 	return;
+		// }
+		//显示当前播放时间和总时间
+		$('curr_time').innerHTML = timeFormat(t1);
+		$('total_time').innerHTML = timeFormat(t2);
+		var timeWidth = 60;
+		var dotWidth = 7;
+		var maxWidth = 640 - timeWidth - timeWidth;
+
+		//计算进度条长度
+		var w = parseInt((t1 / t2) * maxWidth);
+		$('progress_img').style.width = w + 'px';
+		var l = timeWidth + w - dotWidth;
+		$('progress_point').style.left = l + 'px'
+	}
+	var currentBtn = '';
+
+	function showBackDialog() {
+		if (!hasWindow) {
+			// clearTimeout(timer1);
+			// clearTimeout(timer2);
+			showDiv('div_back');
+			hasWindow = true;
+			currentBtn = "btn_continue";
+			$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue_over.png";
+			$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit.png";
+			//Epg.Button.set('btn_continue');
+			playStat = 'play';
+			_playOrPause();
+		} else {
+			_playOrPause_fun();
+		}
+	}
+
+	//视频播放
+	function playVideo(videoUrl) {
+		if (videoUrl === "") {
+			return;
+		}
+		start();
+	}
+
+
+	//获取视频总长
+	function getTotalTime() {
+		return parseInt(mp.getMediaDuration());
+	}
+
+	//获取当前时间
+	function getCurrentTime() {
+		return parseInt(mp.getCurrentPlayTime());
+	}
+	//判断是否播放完成
+	function vodHandler(evt) {
+		var utility = eval('(' + Utility.getEvent() + ')');
+		if (utility.type == 'EVENT_MEDIA_END') {
+			showBackDialog();
+		}
+	}
+	window.document.onkeydown = function (keyEvent) {
+		keyEvent = keyEvent ? keyEvent : window.event;
+		//		keyEvent.which = keyEvent.which ? keyEvent.which : keyEvent.keyCode;
+		//		keycontrol(keyEvent.which);
+		keycontrol(keyEvent.keyCode);
+	}
+
+	function keycontrol(obj) {
+		switch (obj) {
+			case 768:
+				if (stbType == "EC1308B_pub") {
+					vodHandler()
+				}
+				var ev = Utility.getEvent();
+				var errorCode = 0;
+				var utility = eval('(' + Utility.getEvent() + ')');
+				errorCode = utility.type.toUpperCase();
+				switch (errorCode) {
+
+					case 6:
+					case 19: //视频的信息已经成功获得（Descripe命令成功）
+					case "EVENT_MEDIA_END": //播放完毕
+						//hasWindow = true;
+						currentBtn === "btn_continue"
+						isEnds = "end";
+						hideDiv('div_control');
+						showBackDialog();
+						return isEnds;
+						break;
+				}
+				return false;
+				break;
+			case 259:
+				if (!hasWindow) {
+					volumeUp();
+				}
+				break;
+			case 260:
+				if (!hasWindow) {
+					volumeDown();
+				}
+				break;
+			case 261:
+				if (!hasWindow) {
+					setMute();
+				}
+				break;
+			case 37:
+				if (!hasWindow) {
+					fastRewind_fun();
+				} else {
+					if (currentBtn === "btn_quit") {
+						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue_over.png";
+						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit.png";
+						currentBtn = "btn_continue";
+
+					} else {
+						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue.png";
+						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit_over.png";
+						currentBtn = "btn_quit";
+					}
+				}
+				break;
+			case 39:
+				if (!hasWindow) {
+					fastForward_fun();
+				} else {
+					if (currentBtn === "btn_continue") {
+						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue.png";
+						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit_over.png";
+						currentBtn = "btn_quit";
+					} else {
+						$('btn_continue').src = "http://202.99.114.74:57115/file/image/btn_continue_over.png";
+						$('btn_quit').src = "http://202.99.114.74:57115/file/image/btn_quit.png";
+						currentBtn = "btn_continue";
+					}
+				}
+				break;
+			case 38:
+				if (!hasWindow) {
+					showDiv('div_progress');
+					clearTimeout(timer2);
+					timer2 = setTimeout("hideDiv('div_progress')", time);
+				}
+				break;
+			case 40:
+				if (!hasWindow) {
+					showDiv('div_progress');
+					clearTimeout(timer2);
+					timer2 = setTimeout("hideDiv('div_progress')", time);
+				}
+				break
+			case 8:
+				// console.log("*8");
+				// hideDiv('div_control');
+				if (!hasWindow) {
+					_playOrPause_fun();
+				} else {
+					hideDiv('div_control');
+					if (currentBtn === "btn_continue") {
+						_continue();
+					} else {
+						_quit();
+					}
+				}
+				showBackDialog();
+				break;
+				//		case 37: fastRewind();
+				//  		break;
+				//		case 39: 
+				//			fastForward();
+				//			break;
+			case 13:
+				document.getElementById("div_back").style.display = "none";
+				if (!hasWindow) {
+					_playOrPause_fun();
+				} else {
+					hideDiv('div_control');
+					if (currentBtn === "btn_continue") {
+						if (isEnds == "end") {
+							stopVideo();
+							mp.releaseMediaPlayer(instanceId);
+							location.reload(true);
+						} else {
+							_continue();
+						}
+					} else {
+						_quit();
+					}
+				}
+
+				break;
+			default:
+				break;
+		}
+		//vodHandler(obj);
+
+	};
+
+	var seekFlag = null; //快进快退的定时器（按快进快退之后1秒执行）
+	var colseShowFlag = null; //隐藏显示条
+	var seekFlag = null; //跳转到指定时间的定时器
+	var frTime = new Date().getTime(); //记录快进/快退点击的时间
+	function fastForward() {
+		if (speed == 0) {
+			speed = 1;
+		}
+		speed = speed * 2;
+
+		if (speed > 32) {
+			mp.resume();
+			speed = 1;
+
+		} else {
+			if (sign == "rewind") speed = 2;
+
+			mp.fastForward(speed);
+			zsj.utils.log('speed：' + speed);
+
+		}
+		keyCodeStatus = 1;
+		var nTime = 0; //当前时间
+		var nowTime = mp.getCurrentPlayTime();
+
+		if (nowTime == null || nowTime == "") {
+			nTime = parseInt(0, 10);
+		} else {
+			nTime = parseInt(nowTime, 10);
+		}
+		if (ftime > nTime) {
+			nTime = ftime;
+		}
+		if (new Date().getTime() - frTime < 1000) { //
+			nTime = ftime;
+		}
+		nTime = nTime + 5;
+		ftime = nTime;
+		statusUpdateProcessTime = new Date().getTime();
+		sign = "forward";
+	}
+
+	/**
+	 *快退
+	 */
+	function fastRewind() {
+		if (speed == 0) {
+			speed = 1;
+		}
+		speed = speed * 2;
+		if (speed > 32) {
+			mp.resume();
+			speed = 1;
+
+		} else {
+			if (sign == "forward") speed = 2;
+			mp.fastRewind(-speed);
+			zsj.utils.log('-speed：' + speed);
+		}
+		keyCodeStatus = 1;
+		frTime = new Date().getTime();
+
+		var crrtime = parseInt(mp.getCurrentPlayTime()); //当前时间
+
+		if (ftime < crrtime && ftime > 0) {
+			crrtime = ftime;
+		} else if (ftime - crrtime > 5) {
+			crrtime = ftime;
+		}
+		if (new Date().getTime() - frTime < 1000) { //
+			crrtime = ftime;
+		}
+
+		var newtime = crrtime - 5;
+		if (newtime < 0) {
+			newtime = 0;
+		}
+
+		ftime = newtime;
+		statusUpdateProcessTime = new Date().getTime();
+
+
+		sign = "rewind";
+	}
+
+
+	//快进
+	function fastForwardold() {
+		var currTime = getCurrentTime();
+		var totalTime = getTotalTime();
+		var _t;
+		if (currTime + timeFlag >= totalTime) {
+			_t = totalTime - 1;
+		} else {
+			_t = currTime + timeFlag;
+		}
+
+		mp.playByTime(_t);
+	}
+
+	//快退
+	function fastRewindold() {
+		var currTime = getCurrentTime();
+		var t;
+		if (currTime - timeFlag <= 0) {
+			t = 0;
+		} else {
+			t = currTime - timeFlag;
+		}
+
+		mp.playByTime(t);
+	}
+
+	function $(domId) {
+		return document.getElementById(domId);
+	}
+
+	function showDiv(divid) {
+
+		$(divid).style.display = "block";
+
+	}
+
+	function hideDiv(divid) {
+		$(divid).style.display = "none";
+	}
+
+	window.onload = function () {
+
+		//  Epg.btn.init(['btn_playOrPause'], buttons, true);
+		//document.onkeypress = initKeyEventPress;
+		// window.setTimeout("isEnd();", 3000);
+
+		// function isEnd() {
+		// 	//如果是主页小窗口播放,这里播放完后不做任何处理
+		// 	var tmpcurrenttime = parseInt("" + mp.getCurrentPlayTime());
+		// 	var tmpduration = parseInt("" + mp.getMediaDuration());
+		// 	if ((tmpcurrenttime + 2) >= tmpduration) {
+		// 		window.location.href = index_address;
+		// 	} else {
+		// 		window.setTimeout("isEnd();", 1000);
+		// 	}
+
+		// }
+		hideDiv('div_back');
+		playVideo(playUrl);
+		//显示视频播放控制菜单，进度条，5秒内没有操作则隐藏
+		timer1 = setTimeout("hideDiv('div_control');", time);
+		timer2 = setTimeout("hideDiv('div_progress');", time);
+		setPlayTime();
+	}
+</script>
 
 </html>
